@@ -1,0 +1,83 @@
+{% extends 'main.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="main-container">
+<div class="stack">
+
+    <div class="card">
+        <h2>Mumble UI Kit</h2>
+        <p class="text-muted">Soft, modern, Django-friendly</p>
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-danger">Danger</button>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <span class="pill pill-secondary">Active</span>
+            <span class="pill pill-primary">In-active</span>
+        </div>
+        <div class="card">
+            {% include "ui/input.html" with placeholder="Email address" %}
+            <button class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- <div class="card">
+<h2>Django UI Kit</h2>
+    <div class="grid-3">
+        <div class="card">
+            <h3>Buttons</h3>
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-danger">Danger</button>
+        </div>
+        <div class="card">
+            <h3>Pills</h3>
+            <span class="pill pill-success">Active</span>
+            <span class="pill pill-warning">Pending</span>
+            <span class="pill pill-info">Info</span>
+        </div>
+        <div class="card">
+            <h3>Buttons</h3>
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-danger">Danger</button>
+        </div>
+
+        <div class="card">
+            <h3>Form Example</h3>
+            <input class="input" placeholder="Username">
+            <input class="input" placeholder="Email">
+            <button class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</div> -->
+
+<div class="stack">
+<h2>Django UI Kit</h2>
+
+    <div class="grid-3">
+        {% for product in products %}
+            <div class="card">
+            <img class="product__thumbnail" src="{{product.imageURL}}" alt="product thumbnail"/>
+            <h3 class="product__title">{{ product.title }}</h3>
+            <p class="product__price">R{{product.price}} 
+            <button value="{{product.id}}" class="btn btn-primary">Add To Cart</button>
+            </p>  
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% include 'pagination.html' with queryset=products custom_range=custom_range%}
+
+</div>
+
+{% endblock %}
+

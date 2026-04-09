@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Django Site{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'products/css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'products/css/ui.css' %}">
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+    <!-- Main Content -->
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© {% now "Y" %} MySite. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
