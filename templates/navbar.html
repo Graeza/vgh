@@ -30,9 +30,9 @@
           <span class="cart-count">{{ cart_item_count }}</span>
         </a>
 
-        <a href="" class="btn btn-primary">Logout</a>
+        <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
       {% else %}
-        <a href="" class="btn btn-primary">Login</a>
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
       {% endif %}
     </nav>
 

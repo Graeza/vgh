@@ -1,0 +1,30 @@
+{% extends 'main.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="auth-page center">
+  <div class="card auth-card stack">
+    <h1>Welcome back</h1>
+    <p class="text-muted">Sign in to access your account.</p>
+
+    <form method="POST" class="auth-form stack">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert--error">
+          <span class="alert__message">{{ form.non_field_errors|striptags }}</span>
+        </div>
+      {% endif %}
+
+      <label for="id_username">Username</label>
+      <input id="id_username" type="text" name="username" class="input" autocomplete="username" required>
+
+      <label for="id_password">Password</label>
+      <input id="id_password" type="password" name="password" class="input" autocomplete="current-password" required>
+
+      <button type="submit" class="btn btn-primary">Log in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
