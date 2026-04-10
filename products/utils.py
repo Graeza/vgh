@@ -35,8 +35,12 @@ def searchProducts(request):
     tags = Tag.objects.filter(name__icontains=search_query)
 
     products = Product.objects.distinct().filter(
+        is_active=True
+    ).filter(        
         Q(title__icontains=search_query) |
         Q(description__icontains=search_query) |
+        Q(sku__icontains=search_query) |
+        Q(category__icontains=search_query) |
         Q(owner__full_name__icontains=search_query) |
         Q(tags__in=tags)
     )

@@ -1,9 +1,6 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Product, Tag
-# from .forms import ProductForm, ReviewForm
+from django.shortcuts import get_object_or_404, render
+
+from .models import Product
 from .utils import searchProducts, paginateProducts
 
 
@@ -11,5 +8,10 @@ from .utils import searchProducts, paginateProducts
 def products(request):
     products, search_query = searchProducts(request)
     custom_range, products = paginateProducts(request, products, 6)
-    context = {'products': products, 'search_query':search_query, 'custom_range':custom_range}
+    context = {'products': products, 'search_query': search_query, 'custom_range': custom_range}
     return render(request, 'products/products.html', context)
+
+def product(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    context = {'product': product}
+    return render(request, 'products/product.html', context)

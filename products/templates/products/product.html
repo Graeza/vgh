@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+  <div class="card">
+    <img class="product__thumbnail" src="{{ product.imageURL }}" alt="{{ product.title }} thumbnail"/>
+    <h1>{{ product.title }}</h1>
+    <p class="text-muted">{{ product.get_category_display }}</p>
+    <p><strong>Price:</strong> ${{ product.price|default:"0.00" }}</p>
+    <p><strong>SKU:</strong> {{ product.sku|default:"N/A" }}</p>
+    <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
+    <p><strong>THC:</strong> {{ product.thc_min|default:"0" }}% - {{ product.thc_max|default:"0" }}%</p>
+    <p><strong>CBD:</strong> {{ product.cbd_min|default:"0" }}% - {{ product.cbd_max|default:"0" }}%</p>
+    <p><strong>Lab tested:</strong> {% if product.is_lab_tested %}Yes{% else %}No{% endif %}</p>
+
+    {% if product.description %}
+      <hr />
+      <h3>Description</h3>
+      <p>{{ product.description }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
