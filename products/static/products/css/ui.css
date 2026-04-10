@@ -509,3 +509,20 @@ body {
 }
 
   
+/* ----------------------Auth-------------------- */
+.auth-page {
+  min-height: 70vh;
+}
+
+.auth-card {
+  max-width: 460px;
+  width: 100%;
+}
+
+.auth-form label {
+  font-weight: 600;
+}
+
+.auth-form .btn {
+  width: fit-content;
+}
