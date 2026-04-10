@@ -360,7 +360,10 @@ body {
 
 /* LOGO */
 .nav__logo img {
-  height: 42px;
+  height: clamp(56px, 7vw, 84px);
+  width: auto;
+  max-width: 240px;
+  object-fit: contain;
   border-radius: var(--radius-md);
 }
 
@@ -509,3 +512,20 @@ body {
 }
 
   
+/* ----------------------Auth-------------------- */
+.auth-page {
+  min-height: 70vh;
+}
+
+.auth-card {
+  max-width: 460px;
+  width: 100%;
+}
+
+.auth-form label {
+  font-weight: 600;
+}
+
+.auth-form .btn {
+  width: fit-content;
+}
