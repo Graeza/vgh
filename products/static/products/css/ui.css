@@ -360,9 +360,9 @@ body {
 
 /* LOGO */
 .nav__logo img {
-  height: clamp(56px, 7vw, 84px);
+  height: clamp(90px, 10vw, 140px);
   width: auto;
-  max-width: 240px;
+  max-width: 420px;
   object-fit: contain;
   border-radius: var(--radius-md);
 }
