@@ -101,6 +101,18 @@ p {
     margin: 0 0 8px;
 }
 
+.cart-item__controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.cart-item__controls form {
+    margin: 0;
+}
+
 .cart-summary {
     height: fit-content;
 }

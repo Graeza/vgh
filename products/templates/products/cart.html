@@ -20,7 +20,24 @@
                 <img src="{{ item.product.imageURL }}" alt="{{ item.product.title }} thumbnail" class="cart-item__image" />
                 <div class="cart-item__meta">
                   <h4>{{ item.product.title }}</h4>
-                  <p class="text-muted">Qty: {{ item.quantity }}</p>
+                  <div class="cart-item__controls">
+                    <span class="text-muted">Qty: {{ item.quantity }}</span>
+                    <form action="{% url 'update-cart-item' item.product.id %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="decrease" />
+                      <button type="submit" class="btn btn-soft">−</button>
+                    </form>
+                    <form action="{% url 'update-cart-item' item.product.id %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="increase" />
+                      <button type="submit" class="btn btn-soft">+</button>
+                    </form>
+                    <form action="{% url 'update-cart-item' item.product.id %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="remove" />
+                      <button type="submit" class="btn btn-soft btn-danger">Remove</button>
+                    </form>
+                  </div>
                   <p>R{{ item.subtotal|floatformat:2 }}</p>
                 </div>
               </article>
