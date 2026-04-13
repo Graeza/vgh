@@ -22,7 +22,7 @@ def home(request):
         age_denied = True
 
     context = {'age_denied': age_denied}
-    return render(request, 'products/home.html', context)
+    return render(request, 'home.html', context)
 
 
 def products(request):
