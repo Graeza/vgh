@@ -8,7 +8,7 @@
     <img class="product__thumbnail" src="{{ product.imageURL }}" alt="{{ product.title }} thumbnail"/>
     <h1>{{ product.title }}</h1>
     <p class="text-muted">{{ product.get_category_display }}</p>
-    <p><strong>Price:</strong> ${{ product.price|default:"0.00" }}</p>
+    <p><strong>Price:</strong> R{{ product.price|default:"0.00" }}</p>
     <p><strong>SKU:</strong> {{ product.sku|default:"N/A" }}</p>
     <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
     <p><strong>THC:</strong> {{ product.thc_min|default:"0" }}% - {{ product.thc_max|default:"0" }}%</p>
