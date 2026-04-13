@@ -2,6 +2,7 @@ from uuid import UUID
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
 
 from .models import Product
 from .utils import paginateProducts, searchProducts
@@ -52,3 +53,46 @@ def product(request, slug):
 
     context = {'product': product}
     return render(request, 'products/product.html', context)
+
+
+def cart(request):
+    if not request.session.get('age_verified'):
+        return redirect('home')
+
+    cart_items = []
+    for product in Product.objects.filter(is_active=True)[:3]:
+        quantity = 1
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'subtotal': float(product.price or 0) * quantity,
+        })
+
+    subtotal = sum(item['subtotal'] for item in cart_items)
+    shipping = 0 if subtotal >= 500 else 75
+    total = subtotal + shipping
+
+    context = {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'total': total,
+    }
+    return render(request, 'products/cart.html', context)
+
+
+def checkout(request):
+    if not request.session.get('age_verified'):
+        return redirect('home')
+
+    cart_products = Product.objects.filter(is_active=True)[:3]
+    subtotal = sum(float(product.price or 0) for product in cart_products)
+    shipping = 0 if subtotal >= 500 else 75
+    total = subtotal + shipping
+
+    context = {
+        'total': total,
+        'stripe_public_key': getattr(settings, 'STRIPE_PUBLIC_KEY', ''),
+        'payment_intent_client_secret': '',
+    }
+    return render(request, 'products/checkout.html', context)
