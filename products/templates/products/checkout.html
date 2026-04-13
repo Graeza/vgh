@@ -1,0 +1,97 @@
+{% extends 'main.html' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="main-container">
+  <div class="stack checkout-container">
+    <div class="row cart-header-row">
+      <h2>Checkout</h2>
+      <a href="{% url 'cart' %}" class="btn btn-soft">Back to cart</a>
+    </div>
+
+    <div class="cart-layout">
+      <section class="card">
+        <h3>Shipping details</h3>
+        <form class="stack" id="shipping-form">
+          <input class="input" type="text" name="full_name" placeholder="Full name" required>
+          <input class="input" type="email" name="email" placeholder="Email" required>
+          <input class="input" type="text" name="address_line_1" placeholder="Address line 1" required>
+          <input class="input" type="text" name="address_line_2" placeholder="Address line 2 (optional)">
+          <div class="grid-2">
+            <input class="input" type="text" name="city" placeholder="City" required>
+            <input class="input" type="text" name="postal_code" placeholder="Postal code" required>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card cart-summary">
+        <h3>Pay with Stripe</h3>
+        <p class="text-muted">Secure card payments powered by Stripe.</p>
+
+        <div id="card-element" class="stripe-element"></div>
+        <p class="text-muted" id="card-errors" role="alert"></p>
+
+        <div class="cart-summary__line cart-summary__line--total">
+          <span>Total due</span>
+          <strong>R{{ total|floatformat:2 }}</strong>
+        </div>
+
+        <button type="button" id="stripe-pay-btn" class="btn btn-primary cart-summary__cta">Pay now</button>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripePublicKey = "{{ stripe_public_key|default:''|escapejs }}";
+  const paymentIntentClientSecret = "{{ payment_intent_client_secret|default:''|escapejs }}";
+
+  const payBtn = document.getElementById('stripe-pay-btn');
+  const cardErrorEl = document.getElementById('card-errors');
+
+  if (!stripePublicKey || !paymentIntentClientSecret) {
+    payBtn.disabled = true;
+    cardErrorEl.textContent = 'Stripe is not configured yet. Add STRIPE_PUBLIC_KEY and a PaymentIntent client secret from your backend.';
+  } else {
+    const stripe = Stripe(stripePublicKey);
+    const elements = stripe.elements();
+    const card = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#1c1f26'
+        }
+      }
+    });
+
+    card.mount('#card-element');
+
+    payBtn.addEventListener('click', async () => {
+      payBtn.disabled = true;
+      cardErrorEl.textContent = '';
+
+      const {error, paymentIntent} = await stripe.confirmCardPayment(paymentIntentClientSecret, {
+        payment_method: {
+          card,
+          billing_details: {
+            email: document.querySelector('[name="email"]').value,
+            name: document.querySelector('[name="full_name"]').value,
+          }
+        }
+      });
+
+      if (error) {
+        cardErrorEl.textContent = error.message || 'Payment failed. Please try again.';
+        payBtn.disabled = false;
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        window.location.href = "{% url 'products-list' %}";
+      }
+    });
+  }
+</script>
+{% endblock %}

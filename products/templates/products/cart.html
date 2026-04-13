@@ -1,0 +1,57 @@
+{% extends 'main.html' %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="main-container">
+  <div class="stack">
+    <div class="row cart-header-row">
+      <h2>Your Cart</h2>
+      <a href="{% url 'products-list' %}" class="btn btn-soft">Continue shopping</a>
+    </div>
+
+    {% if cart_items %}
+      <div class="cart-layout">
+        <section class="card">
+          <h3>Items</h3>
+          <div class="cart-items">
+            {% for item in cart_items %}
+              <article class="cart-item">
+                <img src="{{ item.product.imageURL }}" alt="{{ item.product.title }} thumbnail" class="cart-item__image" />
+                <div class="cart-item__meta">
+                  <h4>{{ item.product.title }}</h4>
+                  <p class="text-muted">Qty: {{ item.quantity }}</p>
+                  <p>R{{ item.subtotal|floatformat:2 }}</p>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+
+        <aside class="card cart-summary">
+          <h3>Order summary</h3>
+          <div class="cart-summary__line">
+            <span>Subtotal</span>
+            <strong>R{{ subtotal|floatformat:2 }}</strong>
+          </div>
+          <div class="cart-summary__line">
+            <span>Shipping</span>
+            <strong>R{{ shipping|floatformat:2 }}</strong>
+          </div>
+          <div class="cart-summary__line cart-summary__line--total">
+            <span>Total</span>
+            <strong>R{{ total|floatformat:2 }}</strong>
+          </div>
+
+          <a href="{% url 'checkout' %}" class="btn btn-primary cart-summary__cta">Proceed to Stripe checkout</a>
+        </aside>
+      </div>
+    {% else %}
+      <section class="card">
+        <h3>Your cart is empty</h3>
+        <p class="text-muted">Add products before heading to checkout.</p>
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
