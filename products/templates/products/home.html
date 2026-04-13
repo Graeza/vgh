@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block title %}Welcome | Age Verification{% endblock %}
+
+{% block content %}
+<section class="age-gate">
+    <h1>Welcome to Von Gold Herb</h1>
+    <p>You must be 21 years or older to enter this site.</p>
+
+    {% if age_denied %}
+    <p class="age-gate__error">Sorry, you must be at least 21 to continue.</p>
+    {% endif %}
+
+    <form method="post" class="age-gate__actions">
+        {% csrf_token %}
+        <button type="submit" name="is_of_age" value="yes" class="age-gate__btn age-gate__btn--enter">I am 21+</button>
+        <button type="submit" name="is_of_age" value="no" class="age-gate__btn age-gate__btn--exit">I am under 21</button>
+    </form>
+</section>
+{% endblock %}
