@@ -14,6 +14,11 @@
     <p><strong>THC:</strong> {{ product.thc_min|default:"0" }}% - {{ product.thc_max|default:"0" }}%</p>
     <p><strong>CBD:</strong> {{ product.cbd_min|default:"0" }}% - {{ product.cbd_max|default:"0" }}%</p>
     <p><strong>Lab tested:</strong> {% if product.is_lab_tested %}Yes{% else %}No{% endif %}</p>
+    <form action="{% url 'add-to-cart' product.id %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button type="submit" class="btn btn-primary">Add To Cart</button>
+    </form>
 
     {% if product.description %}
       <hr />

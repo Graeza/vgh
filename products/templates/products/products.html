@@ -18,7 +18,11 @@
             </h3>
             <p class="text-muted">{{ product.get_category_display }}</p>
             <p class="product__price">R{{ product.price|default:"0.00" }}</p>
-            <button value="{{ product.id }}" class="btn btn-primary">Add To Cart</button>
+            <form action="{% url 'add-to-cart' product.id %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-primary">Add To Cart</button>
+            </form>
             </div>
         {% empty %}
             <div class="card">
