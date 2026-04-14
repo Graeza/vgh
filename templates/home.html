@@ -1,20 +1,83 @@
 {% extends 'main.html' %}
 
-{% block title %}Welcome | Age Verification{% endblock %}
+{% block title %}Welcome | Von Gold Herb{% endblock %}
 
 {% block content %}
-<section class="age-gate">
-    <h1>Welcome to Von Gold Herb</h1>
-    <p>You must be 18 years or older to enter this site.</p>
-
-    {% if age_denied %}
-    <p class="age-gate__error">Sorry, you must be at least 18 to continue.</p>
-    {% endif %}
-
-    <form method="post" class="age-gate__actions">
-        {% csrf_token %}
-        <button type="submit" name="is_of_age" value="yes" class="age-gate__btn age-gate__btn--enter">I am 18+</button>
-        <button type="submit" name="is_of_age" value="no" class="age-gate__btn age-gate__btn--exit">I am under 18</button>
-    </form>
+<section class="home-hero card">
+    <span class="pill pill-secondary">Premium Hemp Wellness</span>
+    <h1>Elevate Your Routine with Von Gold Herb</h1>
+    <p>
+        Discover carefully curated flower and infused products crafted for quality, consistency,
+        and an elevated daily ritual.
+    </p>
+    <div class="home-hero__actions">
+        <a href="{% url 'products-list' %}" class="btn btn-secondary">Shop Products</a>
+        <a href="{% url 'products-list' %}" class="btn btn-soft">Explore Collections</a>
+    </div>
 </section>
+
+<section class="home-highlights grid-3">
+    <article class="card">
+        <h3>Lab-Tested Quality</h3>
+        <p>Every batch is reviewed to keep your experience clean and consistent.</p>
+    </article>
+    <article class="card">
+        <h3>Fast Shipping</h3>
+        <p>Reliable fulfillment and discreet packaging from checkout to delivery.</p>
+    </article>
+    <article class="card">
+        <h3>Customer Support</h3>
+        <p>Need help choosing? Our team is here to guide your next purchase.</p>
+    </article>
+</section>
+
+{% if show_age_gate %}
+<div id="ageGateModal" class="age-gate-modal" role="dialog" aria-modal="true" aria-labelledby="ageGateTitle">
+    <div class="age-gate-modal__card">
+        <h2 id="ageGateTitle">Age Verification Required</h2>
+        <p>You must be 18 years or older to access Von Gold Herb.</p>
+
+        {% if age_denied %}
+        <p class="age-gate-modal__error">Sorry, you must be at least 18 to continue.</p>
+        {% endif %}
+
+        <form method="post" id="ageGateForm" class="age-gate-modal__actions">
+            {% csrf_token %}
+            <input type="hidden" name="is_of_age" id="ageGateInput" value="">
+            <button type="button" id="ageConfirmBtn" class="btn btn-secondary">I am 18+</button>
+            <button type="button" id="ageDenyBtn" class="btn btn-danger">I am under 18</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if show_age_gate %}
+<script>
+(function () {
+    const modal = document.getElementById('ageGateModal');
+    const form = document.getElementById('ageGateForm');
+    const input = document.getElementById('ageGateInput');
+    const confirmBtn = document.getElementById('ageConfirmBtn');
+    const denyBtn = document.getElementById('ageDenyBtn');
+
+    if (!modal || !form || !input || !confirmBtn || !denyBtn) {
+        return;
+    }
+
+    modal.classList.add('is-open');
+
+    confirmBtn.addEventListener('click', function () {
+        input.value = 'yes';
+        form.submit();
+    });
+
+    denyBtn.addEventListener('click', function () {
+        input.value = 'no';
+        form.submit();
+    });
+})();
+</script>
+{% endif %}
 {% endblock %}

@@ -78,7 +78,10 @@ def home(request):
         request.session['age_verified'] = False
         age_denied = True
 
-    context = {'age_denied': age_denied}
+    context = {
+        'age_denied': age_denied,
+        'show_age_gate': not request.session.get('age_verified', False),
+    }
     return render(request, 'home.html', context)
 
 

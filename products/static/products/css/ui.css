@@ -16,10 +16,10 @@
   /* Colors */
   --bg: #f7f8fa;              /* Soft neutral white */
   --card: #ffffff;           /* Clean card surface */
-  --primary: #fc5d5d;         /* Your red (kept as-is) */
-  --primary-soft: #ffe3e3;    /* Soft red tint for hovers */
-  --gold: #d4a63a;            /* Muted premium gold */
-  --gold-soft: #f7edd1;       /* Soft gold background */
+  --primary: #2f8c54;         /* Primary brand green */
+  --primary-soft: #e2f4e9;    /* Soft green tint for hovers */
+  --gold: #4f9c64;            /* Updated accent green */
+  --gold-soft: #e7f5ea;       /* Soft green accent background */
   --success: #2f8f6b;         /* Calm, modern green */
   --success-soft: #dff3ea;    /* Soft success background */
   --text: #1c1f26;            /* Soft black (better than pure black) */
