@@ -4,40 +4,32 @@ body {
 }
 
 h2 {
-    color: #48a269;
+    color: #2f8c54;
 }
 
 p {
     font-size: 18px;
 }
 
-
-.age-gate {
-    max-width: 640px;
-    margin: 80px auto;
-    padding: 40px;
-    background: #f4f6f2;
-    border-radius: 16px;
+.home-hero {
+    margin-top: 40px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 48px;
+    background: linear-gradient(135deg, #e9f6ee 0%, #f7fbf8 100%);
 }
 
-.age-gate h1 {
-    color: #265d3f;
-    margin-bottom: 12px;
+.home-hero h1 {
+    margin: 10px 0 14px;
+    color: #1f4f35;
 }
 
-.age-gate p {
-    color: #2d2d2d;
+.home-hero p {
+    max-width: 760px;
+    margin: 0 auto;
+    color: #2b3a32;
 }
 
-.age-gate__error {
-    margin-top: 20px;
-    color: #a63232;
-    font-weight: 700;
-}
-
-.age-gate__actions {
+.home-hero__actions {
     margin-top: 24px;
     display: flex;
     gap: 12px;
@@ -45,22 +37,65 @@ p {
     flex-wrap: wrap;
 }
 
-.age-gate__btn {
-    border: 0;
-    border-radius: 999px;
-    padding: 12px 18px;
-    font-size: 16px;
-    cursor: pointer;
+.home-highlights {
+    margin-top: 28px;
 }
 
-.age-gate__btn--enter {
-    background: #2f8c54;
-    color: #fff;
+.home-highlights .card h3 {
+    margin-top: 0;
+    color: #22563a;
 }
 
-.age-gate__btn--exit {
-    background: #d9d9d9;
+.home-highlights .card p {
+    margin-bottom: 0;
+    color: #3e4a44;
+}
+
+.age-gate-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 18px;
+}
+
+.age-gate-modal.is-open {
+    display: flex;
+}
+
+.age-gate-modal__card {
+    width: min(560px, 100%);
+    background: #f4f6f2;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    padding: 36px 30px;
+}
+
+.age-gate-modal__card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.age-gate-modal__card p {
     color: #2d2d2d;
+}
+
+.age-gate-modal__error {
+    margin-top: 18px;
+    color: #a63232;
+    font-weight: 700;
+}
+
+.age-gate-modal__actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .cart-header-row {
