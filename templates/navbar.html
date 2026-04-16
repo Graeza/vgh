@@ -20,6 +20,19 @@
     <nav class="nav__menu">
       <a href="">Creators</a>
       <a href="{% url 'products-list' %}">Products</a>
+      <div class="nav__dropdown">
+        <button class="nav__dropdown-trigger" type="button" aria-haspopup="true">
+          Policy
+        </button>
+        <div class="nav__dropdown-menu" role="menu">
+          <a href="#" role="menuitem">Privacy Policy</a>
+          <a href="#" role="menuitem">Website Terms and Conditions</a>
+          <a href="#" role="menuitem">Delivery / Collection Policy</a>
+          <a href="#" role="menuitem">Return Policy</a>
+          <a href="#" role="menuitem">Age Disclaimer</a>
+          <a href="#" role="menuitem">Product Disclaimer</a>
+        </div>
+      </div>
       
       {% if request.user.is_authenticated %}
       <a href="">Inbox</a>
