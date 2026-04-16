@@ -1,0 +1,22 @@
+{% extends 'main.html' %}
+
+{% block title %}{{ page.title }} | Von Gold Herb{% endblock %}
+
+{% block content %}
+<section class="card stack policy-page">
+    <span class="pill pill-secondary">Policy</span>
+    <h1>{{ page.title }}</h1>
+    <p>{{ page.intro }}</p>
+    <p><strong>Last updated:</strong> {{ page.last_updated }}</p>
+</section>
+
+{% for section in page.sections %}
+<section class="card stack policy-page__section">
+    <h2>{{ section.heading }}</h2>
+
+    {% for paragraph in section.body %}
+    <p>{{ paragraph }}</p>
+    {% endfor %}
+</section>
+{% endfor %}
+{% endblock %}

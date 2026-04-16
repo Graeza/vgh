@@ -25,12 +25,12 @@
           Policy
         </button>
         <div class="nav__dropdown-menu" role="menu">
-          <a href="#" role="menuitem">Privacy Policy</a>
-          <a href="#" role="menuitem">Website Terms and Conditions</a>
-          <a href="#" role="menuitem">Delivery / Collection Policy</a>
-          <a href="#" role="menuitem">Return Policy</a>
-          <a href="#" role="menuitem">Age Disclaimer</a>
-          <a href="#" role="menuitem">Product Disclaimer</a>
+          <a href="{% url 'policy-page' 'privacy-policy' %}" role="menuitem">Privacy Policy</a>
+          <a href="{% url 'policy-page' 'website-terms-and-conditions' %}" role="menuitem">Website Terms and Conditions</a>
+          <a href="{% url 'policy-page' 'delivery-collection-policy' %}" role="menuitem">Delivery / Collection Policy</a>
+          <a href="{% url 'policy-page' 'return-policy' %}" role="menuitem">Return Policy</a>
+          <a href="{% url 'policy-page' 'age-disclaimer' %}" role="menuitem">Age Disclaimer</a>
+          <a href="{% url 'policy-page' 'product-disclaimer' %}" role="menuitem">Product Disclaimer</a>
         </div>
       </div>
       

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
 
 from .models import Product
+from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
 
 
@@ -143,6 +144,18 @@ def checkout(request):
         'payment_intent_client_secret': '',
     }
     return render(request, 'products/checkout.html', context)
+
+
+def policy_page(request, slug):
+    page = POLICY_PAGES.get(slug)
+    if page is None:
+        raise Http404('Policy page not found.')
+
+    context = {
+        'page': page,
+        'cart_item_count': _cart_item_count(request),
+    }
+    return render(request, 'products/policy_page.html', context)
 
 
 def add_to_cart(request, product_id):
