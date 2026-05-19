@@ -27,7 +27,7 @@
           <button type="submit" class="btn btn-primary cart-summary__cta" {% if total > available_points or total == 0 %}disabled{% endif %}>Redeem points</button>
         </form>
         {% if total > available_points %}
-          <p class="text-muted">You need {{ total|add:-available_points }} more points to complete this purchase.</p>
+          <p class="text-muted">You need {{ needed_points }} more points to complete this purchase.</p>
         {% endif %}
       </section>
     </div>

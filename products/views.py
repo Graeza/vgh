@@ -169,6 +169,7 @@ def checkout(request):
         'total': total,
         'cart_item_count': cart_context['cart_item_count'],
         'available_points': profile.points_balance,
+        'needed_points': max(total - profile.points_balance, 0),
     }
     return render(request, 'products/checkout.html', context)
 

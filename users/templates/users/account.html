@@ -39,7 +39,8 @@
               {{ address.recipient_name }}<br>
               {{ address.line_1 }}{% if address.line_2 %}, {{ address.line_2 }}{% endif %}<br>
               {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
-              {{ address.country }}
+              {{ address.country }}<br>
+              {{ address.phone }}
             </li>
           {% endfor %}
         </ul>
