@@ -268,3 +268,42 @@ p {
         grid-template-columns: 1fr;
     }
 }
+
+.account-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.account-tabs__nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+.account-tabs__button {
+    border: 1px solid #d1d5db;
+    background: #f8faf9;
+    color: #2b3a32;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.account-tabs__button.is-active {
+    background: #2f8c54;
+    color: #fff;
+    border-color: #2f8c54;
+}
+
+.account-tabs__panel {
+    margin-top: 16px;
+}
+
+.account-tabs__panel h2 {
+    margin-top: 0;
+}
