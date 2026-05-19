@@ -1,8 +1,8 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<section class="container py-4">
-  <div class="card" style="max-width: 640px; margin: 0 auto;">
+<section class="container py-4 account-page">
+  <div class="card address-form-card" style="max-width: 640px; margin: 0 auto;">
     <h1>Edit Account Details</h1>
     <form method="POST" class="auth-form stack">
       {% csrf_token %}
