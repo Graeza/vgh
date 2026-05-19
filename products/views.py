@@ -2,10 +2,12 @@ from decimal import Decimal
 from uuid import UUID
 
 from django.http import Http404
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 
 from .models import Product
+from .forms import ProductForm
 from users.models import PointLedger
 from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
@@ -101,6 +103,29 @@ def products(request):
         'cart_item_count': cart_item_count,
     }
     return render(request, 'products/products.html', context)
+
+
+
+
+@login_required
+def add_product(request):
+    if not request.user.is_superuser:
+        raise Http404('Page not found.')
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product created successfully.')
+            return redirect('products-list')
+    else:
+        form = ProductForm()
+
+    context = {
+        'form': form,
+        'cart_item_count': _cart_item_count(request),
+    }
+    return render(request, 'products/add_product.html', context)
 
 
 def product(request, slug):
