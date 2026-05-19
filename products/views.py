@@ -157,7 +157,7 @@ def checkout(request):
         profile.save(update_fields=['points_balance'])
         PointLedger.objects.create(
             user=profile,
-            points=total,
+            points=-total,
             event='redeemed',
             note='Redeemed points at checkout',
         )
