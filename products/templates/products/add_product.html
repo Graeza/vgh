@@ -7,7 +7,7 @@
   <div class="stack">
     <h2>Add Product</h2>
     <div class="card">
-      <form method="post" enctype="multipart/form-data" class="stack">
+      <form method="post" enctype="multipart/form-data" class="auth-form stack">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -15,8 +15,8 @@
         {% endif %}
 
         {% for field in form %}
-          <div class="stack" style="gap:6px;">
-            <label for="{{ field.id_for_label }}"><strong>{{ field.label }}</strong></label>
+          <div class="stack form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
             {% if field.help_text %}
               <small class="text-muted">{{ field.help_text }}</small>
@@ -27,7 +27,7 @@
           </div>
         {% endfor %}
 
-        <div class="row">
+        <div class="address-form-card__actions">
           <button type="submit" class="btn btn-primary">Save Product</button>
           <a href="{% url 'products-list' %}" class="btn btn-soft">Cancel</a>
         </div>
