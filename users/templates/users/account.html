@@ -1,11 +1,34 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<section class="container py-4">
+<section class="container py-4 account-page">
   <h1>My Account</h1>
   <p>Welcome back, {{ request.user.get_username }}.</p>
 
-  <div class="card">
+  <div class="card account-tabs" data-account-tabs>
+    <div class="account-tabs__nav" role="tablist" aria-label="Account sections">
+      <button class="account-tabs__button is-active" type="button" data-tab-target="orders" role="tab" aria-selected="true" aria-controls="orders-panel" id="orders-tab">Orders</button>
+      <button class="account-tabs__button" type="button" data-tab-target="address-book" role="tab" aria-selected="false" aria-controls="address-book-panel" id="address-book-tab">Address Book</button>
+      <button class="account-tabs__button" type="button" data-tab-target="gold-points" role="tab" aria-selected="false" aria-controls="gold-points-panel" id="gold-points-tab">Gold Points</button>
+    </div>
+
+    <section class="account-tabs__panel is-active" data-tab-panel="orders" role="tabpanel" id="orders-panel" aria-labelledby="orders-tab">
+      <h2>Orders</h2>
+      <p>You have no recent orders.</p>
+    </section>
+
+    <section class="account-tabs__panel" data-tab-panel="address-book" role="tabpanel" id="address-book-panel" aria-labelledby="address-book-tab" hidden>
+      <h2>Address Book</h2>
+      <p>No saved addresses yet.</p>
+    </section>
+
+    <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
+      <h2>Gold Points</h2>
+      <p>Your current balance is <strong>0 points</strong>.</p>
+    </section>
+  </div>
+
+  <div class="card account-details-card">
     <h2>Account Details</h2>
     <p><strong>Username:</strong> {{ request.user.username }}</p>
     {% if request.user.email %}
@@ -15,4 +38,32 @@
     {% endif %}
   </div>
 </section>
+
+<script>
+  (function () {
+    const tabsRoot = document.querySelector('[data-account-tabs]');
+    if (!tabsRoot) return;
+
+    const buttons = tabsRoot.querySelectorAll('[data-tab-target]');
+    const panels = tabsRoot.querySelectorAll('[data-tab-panel]');
+
+    function setActiveTab(target) {
+      buttons.forEach((button) => {
+        const isActive = button.dataset.tabTarget === target;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      panels.forEach((panel) => {
+        const isActive = panel.dataset.tabPanel === target;
+        panel.classList.toggle('is-active', isActive);
+        panel.hidden = !isActive;
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
+    });
+  })();
+</script>
 {% endblock content %}
