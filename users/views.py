@@ -1,5 +1,5 @@
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Profile
@@ -31,6 +31,7 @@ def inbox(request):
 
 @login_required
 def account(request):
+    password_form = PasswordChangeForm(request.user)
     profile, _ = Profile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -41,6 +42,26 @@ def account(request):
     )
 
     if request.method == 'POST':
+        account_action = request.POST.get('account_action')
+        if account_action == 'update_username':
+            new_username = request.POST.get('username', '').strip()
+            if new_username:
+                request.user.username = new_username
+                request.user.save(update_fields=['username'])
+            return redirect('account')
+
+        if account_action == 'update_email':
+            request.user.email = request.POST.get('email', '').strip()
+            request.user.save(update_fields=['email'])
+            return redirect('account')
+
+        if account_action == 'update_password':
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                return redirect('account')
+
         action = request.POST.get('address_action')
         if action == 'remove':
             address = get_object_or_404(profile.addresses, id=request.POST.get('address_id'))
@@ -89,5 +110,6 @@ def account(request):
         'orders': orders,
         'point_entries': point_entries,
         'point_balance': point_balance,
+        'password_form': password_form,
     }
     return render(request, "users/account.html", context)
