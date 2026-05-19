@@ -1,7 +1,7 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from .models import Profile
 
 
@@ -39,6 +39,45 @@ def account(request):
             'full_name': request.user.get_full_name(),
         },
     )
+
+    if request.method == 'POST':
+        action = request.POST.get('address_action')
+        if action == 'remove':
+            address = get_object_or_404(profile.addresses, id=request.POST.get('address_id'))
+            address.delete()
+            return redirect('account')
+
+        if action in {'add', 'edit'}:
+            address_id = request.POST.get('address_id')
+            if action == 'edit':
+                address = get_object_or_404(profile.addresses, id=address_id)
+            else:
+                address = profile.addresses.model(user=profile)
+
+            address.label = request.POST.get('label', '').strip() or 'Home'
+            address.recipient_name = request.POST.get('recipient_name', '').strip()
+            address.line_1 = request.POST.get('line_1', '').strip()
+            address.line_2 = request.POST.get('line_2', '').strip()
+            address.city = request.POST.get('city', '').strip()
+            address.state = request.POST.get('state', '').strip()
+            address.postal_code = request.POST.get('postal_code', '').strip()
+            address.country = request.POST.get('country', '').strip() or 'US'
+            address.phone = request.POST.get('phone', '').strip()
+            address.is_default = request.POST.get('is_default') == 'on'
+
+            if address.is_default:
+                profile.addresses.exclude(id=address.id).update(is_default=False)
+
+            required_values = [
+                address.recipient_name,
+                address.line_1,
+                address.city,
+                address.state,
+                address.postal_code,
+            ]
+            if all(required_values):
+                address.save()
+                return redirect('account')
 
     addresses = profile.addresses.all()
     orders = profile.orders.select_related('product', 'shipping_address')
