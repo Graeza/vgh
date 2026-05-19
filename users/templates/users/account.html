@@ -17,70 +17,63 @@
       {% if orders %}
         <ul>
           {% for order in orders %}
-            <li><strong>{{ order.product.name }}</strong> &times; {{ order.quantity }} — ${{ order.unit_price }} each ({{ order.status|title }}, {{ order.placed_at|date:"M d, Y" }})</li>
+            <li>
+              <strong>{{ order.product.name }}</strong>
+              &times; {{ order.quantity }} — ${{ order.unit_price }} each
+              ({{ order.status|title }}, {{ order.placed_at|date:"M d, Y" }})
+            </li>
           {% endfor %}
         </ul>
-      {% else %}<p>You have no recent orders.</p>{% endif %}
+      {% else %}
+        <p>You have no recent orders.</p>
+      {% endif %}
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="address-book" role="tabpanel" id="address-book-panel" aria-labelledby="address-book-tab" hidden>
       <h2>Address Book</h2>
-
-      <h3>Add Address</h3>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add-address">
-        {{ address_form.as_p }}
-        <button type="submit">Add Address</button>
-      </form>
-
-      <h3>Saved Addresses</h3>
       {% if addresses %}
-        {% for address in addresses %}
-          <form method="post" style="margin-bottom: 1rem; border-top: 1px solid #ccc; padding-top: 1rem;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="update-address">
-            <input type="hidden" name="address_id" value="{{ address.id }}">
-            <p><strong>{% if address.is_default %}Default{% endif %}</strong></p>
-            <p><label>Label <input type="text" name="label" value="{{ address.label }}"></label></p>
-            <p><label>Recipient <input type="text" name="recipient_name" value="{{ address.recipient_name }}"></label></p>
-            <p><label>Line 1 <input type="text" name="line_1" value="{{ address.line_1 }}"></label></p>
-            <p><label>Line 2 <input type="text" name="line_2" value="{{ address.line_2 }}"></label></p>
-            <p><label>City <input type="text" name="city" value="{{ address.city }}"></label></p>
-            <p><label>State <input type="text" name="state" value="{{ address.state }}"></label></p>
-            <p><label>Postal Code <input type="text" name="postal_code" value="{{ address.postal_code }}"></label></p>
-            <p><label>Country <input type="text" name="country" value="{{ address.country }}"></label></p>
-            <p><label>Phone <input type="text" name="phone" value="{{ address.phone }}"></label></p>
-            <p><label><input type="checkbox" name="is_default" {% if address.is_default %}checked{% endif %}> Default</label></p>
-            <button type="submit">Update</button>
-          </form>
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="delete-address">
-            <input type="hidden" name="address_id" value="{{ address.id }}">
-            <button type="submit">Delete</button>
-          </form>
-        {% endfor %}
-      {% else %}<p>No saved addresses yet.</p>{% endif %}
+        <ul>
+          {% for address in addresses %}
+            <li>
+              <strong>{{ address.label }}</strong>{% if address.is_default %} (Default){% endif %}<br>
+              {{ address.recipient_name }}<br>
+              {{ address.line_1 }}{% if address.line_2 %}, {{ address.line_2 }}{% endif %}<br>
+              {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+              {{ address.country }}<br>
+              {{ address.phone }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No saved addresses yet.</p>
+      {% endif %}
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
       <h2>Gold Points</h2>
       <p>Your current balance is <strong>{{ point_balance }} points</strong>.</p>
       {% if point_entries %}
-        <ul>{% for entry in point_entries %}<li>{{ entry.created|date:"M d, Y" }}: {{ entry.event|title }} {{ entry.points }} points{% if entry.order %}(Order {{ entry.order.id }}){% endif %}{% if entry.note %} — {{ entry.note }}{% endif %}</li>{% endfor %}</ul>
+        <ul>
+          {% for entry in point_entries %}
+            <li>
+              {{ entry.created|date:"M d, Y" }}: {{ entry.event|title }} {{ entry.points }} points
+              {% if entry.order %}(Order {{ entry.order.id }}){% endif %}
+              {% if entry.note %} — {{ entry.note }}{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
       {% endif %}
     </section>
   </div>
 
   <div class="card account-details-card">
     <h2>Account Details</h2>
-    <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="update-account">
-      {{ account_form.as_p }}
-      <button type="submit">Update Account</button>
-    </form>
+    <p><strong>Username:</strong> {{ request.user.username }}</p>
+    {% if request.user.email %}
+      <p><strong>Email:</strong> {{ request.user.email }}</p>
+    {% else %}
+      <p><strong>Email:</strong> Not set</p>
+    {% endif %}
   </div>
 </section>
 
@@ -88,21 +81,27 @@
   (function () {
     const tabsRoot = document.querySelector('[data-account-tabs]');
     if (!tabsRoot) return;
+
     const buttons = tabsRoot.querySelectorAll('[data-tab-target]');
     const panels = tabsRoot.querySelectorAll('[data-tab-panel]');
+
     function setActiveTab(target) {
       buttons.forEach((button) => {
         const isActive = button.dataset.tabTarget === target;
         button.classList.toggle('is-active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
+
       panels.forEach((panel) => {
         const isActive = panel.dataset.tabPanel === target;
         panel.classList.toggle('is-active', isActive);
         panel.hidden = !isActive;
       });
     }
-    buttons.forEach((button) => button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget)));
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
+    });
   })();
 </script>
 {% endblock content %}
