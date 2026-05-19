@@ -139,7 +139,10 @@
   </div>
 
   <div class="card account-details-card">
-    <h2>Account Details</h2>
+    <div class="account-tabs__panel-header">
+      <h2>Account Details</h2>
+      <a href="{% url 'edit-account-details' %}" class="btn btn-primary btn-sm">Edit Account Details</a>
+    </div>
     <p><strong>Username:</strong> {{ request.user.username }}</p>
     {% if request.user.email %}
       <p><strong>Email:</strong> {{ request.user.email }}</p>
