@@ -1,7 +1,8 @@
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from .forms import AccountDetailsForm
 from .models import Profile
 
 
@@ -91,3 +92,16 @@ def account(request):
         'point_balance': point_balance,
     }
     return render(request, "users/account.html", context)
+
+
+@login_required
+def edit_account_details(request):
+    form = AccountDetailsForm(request.POST or None, instance=request.user)
+
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        if form.cleaned_data.get('password'):
+            update_session_auth_hash(request, user)
+        return redirect('account')
+
+    return render(request, 'users/edit_account_details.html', {'form': form})

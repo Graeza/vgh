@@ -1,0 +1,27 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<section class="container py-4">
+  <div class="card" style="max-width: 640px; margin: 0 auto;">
+    <h1>Edit Account Details</h1>
+    <form method="POST" class="auth-form stack">
+      {% csrf_token %}
+
+      <label for="id_username">Username</label>
+      {{ form.username }}
+
+      <label for="id_email">Email</label>
+      {{ form.email }}
+
+      <label for="id_password">New Password</label>
+      {{ form.password }}
+      <small>{{ form.password.help_text }}</small>
+
+      <div class="address-form-card__actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a class="btn btn-soft" href="{% url 'account' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock content %}
