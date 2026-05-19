@@ -117,6 +117,7 @@ class PointLedger(models.Model):
         ('earned', 'Earned'),
         ('redeemed', 'Redeemed'),
         ('adjusted', 'Adjusted'),
+        ('purchased', 'Purchased'),
     )
 
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='point_entries')
