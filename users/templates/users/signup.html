@@ -1,0 +1,47 @@
+{% extends 'main.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section class="auth-page center">
+  <div class="card auth-card stack">
+    <h1>Create your account</h1>
+    <p class="text-muted">Join to start shopping and managing your orders.</p>
+
+    <form method="POST" class="auth-form stack">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert--error">
+          <span class="alert__message">{{ form.non_field_errors|striptags }}</span>
+        </div>
+      {% endif %}
+
+      {% for field in form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <input
+          id="{{ field.id_for_label }}"
+          type="{{ field.field.widget.input_type|default:'text' }}"
+          name="{{ field.html_name }}"
+          value="{{ field.value|default:'' }}"
+          class="input"
+          autocomplete="off"
+          required
+        >
+        {% if field.errors %}
+          <div class="alert alert--error">
+            <span class="alert__message">{{ field.errors|striptags }}</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary">Sign up</button>
+    </form>
+
+    <p class="text-muted">
+      Already a member?
+      <a href="{% url 'login' %}">Log in</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
