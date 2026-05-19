@@ -38,7 +38,7 @@
                       <button type="submit" class="btn btn-soft btn-danger">Remove</button>
                     </form>
                   </div>
-                  <p>R{{ item.subtotal|floatformat:2 }}</p>
+                  <p>{{ item.subtotal }} pts</p>
                 </div>
               </article>
             {% endfor %}
@@ -49,18 +49,18 @@
           <h3>Order summary</h3>
           <div class="cart-summary__line">
             <span>Subtotal</span>
-            <strong>R{{ subtotal|floatformat:2 }}</strong>
+            <strong>{{ subtotal }} pts</strong>
           </div>
           <div class="cart-summary__line">
             <span>Shipping</span>
-            <strong>R{{ shipping|floatformat:2 }}</strong>
+            <strong>{{ shipping }} pts</strong>
           </div>
           <div class="cart-summary__line cart-summary__line--total">
             <span>Total</span>
-            <strong>R{{ total|floatformat:2 }}</strong>
+            <strong>{{ total }} pts</strong>
           </div>
 
-          <a href="{% url 'checkout' %}" class="btn btn-primary cart-summary__cta">Proceed to Stripe checkout</a>
+          <a href="{% url 'checkout' %}" class="btn btn-primary cart-summary__cta">Proceed to points checkout</a>
         </aside>
       </div>
     {% else %}
