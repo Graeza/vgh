@@ -3,9 +3,10 @@ from uuid import UUID
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.conf import settings
+from django.contrib import messages
 
 from .models import Product
+from users.models import PointLedger
 from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
 
@@ -44,23 +45,23 @@ def _build_cart_context(request):
     cart_items = []
     for product in products:
         quantity = quantities_by_id.get(str(product.id), 0)
-        price = product.price or Decimal('0')
-        subtotal = price * quantity
+        points_per_item = int((product.price or Decimal('0')).to_integral_value())
+        subtotal = points_per_item * quantity
         cart_items.append({
             'product': product,
             'quantity': quantity,
             'subtotal': subtotal,
         })
 
-    subtotal = sum((item['subtotal'] for item in cart_items), Decimal('0'))
-    shipping = Decimal('0') if subtotal >= Decimal('500') else Decimal('75')
+    subtotal = sum((item['subtotal'] for item in cart_items), 0)
+    shipping = 0
     total = subtotal + shipping
 
     return {
         'cart_items': cart_items,
         'subtotal': subtotal,
-        'shipping': shipping if cart_items else Decimal('0'),
-        'total': total if cart_items else Decimal('0'),
+        'shipping': shipping if cart_items else 0,
+        'total': total if cart_items else 0,
         'cart_item_count': sum(item['quantity'] for item in cart_items),
     }
 
@@ -137,11 +138,37 @@ def checkout(request):
     cart_context = _build_cart_context(request)
     total = cart_context['total']
 
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please sign in to redeem points at checkout.')
+        return redirect('login')
+
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        if not cart_context['cart_items']:
+            messages.error(request, 'Your cart is empty.')
+            return redirect('cart')
+
+        if profile.points_balance < total:
+            messages.error(request, 'You do not have enough points for this order.')
+            return redirect('checkout')
+
+        profile.points_balance -= total
+        profile.save(update_fields=['points_balance'])
+        PointLedger.objects.create(
+            user=profile,
+            points=total,
+            event='redeemed',
+            note='Redeemed points at checkout',
+        )
+        _save_cart_data(request, {})
+        messages.success(request, f'Checkout complete. {total} points redeemed.')
+        return redirect('products-list')
+
     context = {
         'total': total,
         'cart_item_count': cart_context['cart_item_count'],
-        'stripe_public_key': getattr(settings, 'STRIPE_PUBLIC_KEY', ''),
-        'payment_intent_client_secret': '',
+        'available_points': profile.points_balance,
     }
     return render(request, 'products/checkout.html', context)
 
