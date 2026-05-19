@@ -1,5 +1,6 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 
@@ -20,3 +21,8 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('products-list')
+
+
+@login_required
+def inbox(request):
+    return render(request, "users/inbox.html")
