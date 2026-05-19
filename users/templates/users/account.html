@@ -32,7 +32,52 @@
     <section class="account-tabs__panel" data-tab-panel="address-book" role="tabpanel" id="address-book-panel" aria-labelledby="address-book-tab" hidden>
       <div class="account-tabs__panel-header">
         <h2>Address Book</h2>
-        <button type="button" class="btn btn-primary btn-sm">Add Address</button>
+        <button type="button" class="btn btn-primary btn-sm" data-address-add>Add Address</button>
+      </div>
+      <div class="card address-form-card" data-address-form hidden>
+        <h3 data-address-form-title>Add Address</h3>
+        <form method="POST" class="auth-form stack">
+          {% csrf_token %}
+          <input type="hidden" name="address_action" value="add" data-address-action>
+          <input type="hidden" name="address_id" value="" data-address-id>
+
+          <label for="id_label">Label</label>
+          <input id="id_label" class="input" name="label" type="text" placeholder="Home, Work, etc." data-field="label">
+
+          <label for="id_recipient_name">Recipient Name</label>
+          <input id="id_recipient_name" class="input" name="recipient_name" type="text" required data-field="recipient_name">
+
+          <label for="id_line_1">Address Line 1</label>
+          <input id="id_line_1" class="input" name="line_1" type="text" required data-field="line_1">
+
+          <label for="id_line_2">Address Line 2</label>
+          <input id="id_line_2" class="input" name="line_2" type="text" data-field="line_2">
+
+          <label for="id_city">City</label>
+          <input id="id_city" class="input" name="city" type="text" required data-field="city">
+
+          <label for="id_state">State</label>
+          <input id="id_state" class="input" name="state" type="text" required data-field="state">
+
+          <label for="id_postal_code">Postal Code</label>
+          <input id="id_postal_code" class="input" name="postal_code" type="text" required data-field="postal_code">
+
+          <label for="id_country">Country</label>
+          <input id="id_country" class="input" name="country" type="text" value="US" data-field="country">
+
+          <label for="id_phone">Phone</label>
+          <input id="id_phone" class="input" name="phone" type="text" data-field="phone">
+
+          <label>
+            <input id="id_is_default" name="is_default" type="checkbox" data-field="is_default">
+            Set as default address
+          </label>
+
+          <div class="address-form-card__actions">
+            <button type="submit" class="btn btn-primary">Save Address</button>
+            <button type="button" class="btn btn-soft" data-address-cancel>Cancel</button>
+          </div>
+        </form>
       </div>
       {% if addresses %}
         <ul class="address-list">
@@ -45,8 +90,28 @@
               {{ address.country }}<br>
               {{ address.phone }}
               <div class="address-list__actions">
-                <button type="button" class="btn btn-soft btn-sm">Edit</button>
-                <button type="button" class="btn btn-danger btn-sm">Remove</button>
+                <button
+                  type="button"
+                  class="btn btn-soft btn-sm"
+                  data-address-edit
+                  data-address-id="{{ address.id }}"
+                  data-label="{{ address.label }}"
+                  data-recipient-name="{{ address.recipient_name }}"
+                  data-line-1="{{ address.line_1 }}"
+                  data-line-2="{{ address.line_2 }}"
+                  data-city="{{ address.city }}"
+                  data-state="{{ address.state }}"
+                  data-postal-code="{{ address.postal_code }}"
+                  data-country="{{ address.country }}"
+                  data-phone="{{ address.phone }}"
+                  data-is-default="{% if address.is_default %}1{% else %}0{% endif %}"
+                >Edit</button>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="address_action" value="remove">
+                  <input type="hidden" name="address_id" value="{{ address.id }}">
+                  <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
               </div>
             </li>
           {% endfor %}
@@ -108,6 +173,74 @@
 
     buttons.forEach((button) => {
       button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
+    });
+
+    const addressFormCard = tabsRoot.querySelector('[data-address-form]');
+    const addAddressButton = tabsRoot.querySelector('[data-address-add]');
+    const cancelAddressButton = tabsRoot.querySelector('[data-address-cancel]');
+    const addressActionInput = tabsRoot.querySelector('[data-address-action]');
+    const addressIdInput = tabsRoot.querySelector('[data-address-id]');
+    const addressFormTitle = tabsRoot.querySelector('[data-address-form-title]');
+
+    const fieldMap = {
+      label: tabsRoot.querySelector('[data-field="label"]'),
+      recipientName: tabsRoot.querySelector('[data-field="recipient_name"]'),
+      line1: tabsRoot.querySelector('[data-field="line_1"]'),
+      line2: tabsRoot.querySelector('[data-field="line_2"]'),
+      city: tabsRoot.querySelector('[data-field="city"]'),
+      state: tabsRoot.querySelector('[data-field="state"]'),
+      postalCode: tabsRoot.querySelector('[data-field="postal_code"]'),
+      country: tabsRoot.querySelector('[data-field="country"]'),
+      phone: tabsRoot.querySelector('[data-field="phone"]'),
+      isDefault: tabsRoot.querySelector('[data-field="is_default"]'),
+    };
+
+    function resetAddressForm() {
+      addressActionInput.value = 'add';
+      addressIdInput.value = '';
+      addressFormTitle.textContent = 'Add Address';
+      fieldMap.label.value = '';
+      fieldMap.recipientName.value = '';
+      fieldMap.line1.value = '';
+      fieldMap.line2.value = '';
+      fieldMap.city.value = '';
+      fieldMap.state.value = '';
+      fieldMap.postalCode.value = '';
+      fieldMap.country.value = 'US';
+      fieldMap.phone.value = '';
+      fieldMap.isDefault.checked = false;
+    }
+
+    function openAddressForm() {
+      addressFormCard.hidden = false;
+    }
+
+    addAddressButton?.addEventListener('click', () => {
+      resetAddressForm();
+      openAddressForm();
+    });
+
+    cancelAddressButton?.addEventListener('click', () => {
+      addressFormCard.hidden = true;
+    });
+
+    tabsRoot.querySelectorAll('[data-address-edit]').forEach((button) => {
+      button.addEventListener('click', () => {
+        addressActionInput.value = 'edit';
+        addressIdInput.value = button.dataset.addressId || '';
+        addressFormTitle.textContent = 'Edit Address';
+        fieldMap.label.value = button.dataset.label || '';
+        fieldMap.recipientName.value = button.dataset.recipientName || '';
+        fieldMap.line1.value = button.dataset.line1 || '';
+        fieldMap.line2.value = button.dataset.line2 || '';
+        fieldMap.city.value = button.dataset.city || '';
+        fieldMap.state.value = button.dataset.state || '';
+        fieldMap.postalCode.value = button.dataset.postalCode || '';
+        fieldMap.country.value = button.dataset.country || 'US';
+        fieldMap.phone.value = button.dataset.phone || '';
+        fieldMap.isDefault.checked = button.dataset.isDefault === '1';
+        openAddressForm();
+      });
     });
   })();
 </script>

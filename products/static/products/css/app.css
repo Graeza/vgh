@@ -337,3 +337,21 @@ p {
     margin-top: 12px;
     flex-wrap: wrap;
 }
+
+.address-list__actions form {
+    margin: 0;
+}
+
+.address-form-card {
+    margin-top: 12px;
+}
+
+.address-form-card h3 {
+    margin-top: 0;
+}
+
+.address-form-card__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
