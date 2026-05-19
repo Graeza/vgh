@@ -12,6 +12,11 @@ class AccountDetailsForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ["username", "email", "password"]
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "input"}),
+            "email": forms.EmailInput(attrs={"class": "input"}),
+            "password": forms.PasswordInput(attrs={"class": "input"}),
+        }
 
     def save(self, commit=True):
         user = super().save(commit=False)
