@@ -26,3 +26,8 @@ def logout_user(request):
 @login_required
 def inbox(request):
     return render(request, "users/inbox.html")
+
+
+@login_required
+def account(request):
+    return render(request, "users/account.html")

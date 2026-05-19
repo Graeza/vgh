@@ -1,0 +1,18 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<section class="container py-4">
+  <h1>My Account</h1>
+  <p>Welcome back, {{ request.user.get_username }}.</p>
+
+  <div class="card">
+    <h2>Account Details</h2>
+    <p><strong>Username:</strong> {{ request.user.username }}</p>
+    {% if request.user.email %}
+      <p><strong>Email:</strong> {{ request.user.email }}</p>
+    {% else %}
+      <p><strong>Email:</strong> Not set</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock content %}
