@@ -14,17 +14,54 @@
 
     <section class="account-tabs__panel is-active" data-tab-panel="orders" role="tabpanel" id="orders-panel" aria-labelledby="orders-tab">
       <h2>Orders</h2>
-      <p>You have no recent orders.</p>
+      {% if orders %}
+        <ul>
+          {% for order in orders %}
+            <li>
+              <strong>{{ order.product.name }}</strong>
+              &times; {{ order.quantity }} — ${{ order.unit_price }} each
+              ({{ order.status|title }}, {{ order.placed_at|date:"M d, Y" }})
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>You have no recent orders.</p>
+      {% endif %}
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="address-book" role="tabpanel" id="address-book-panel" aria-labelledby="address-book-tab" hidden>
       <h2>Address Book</h2>
-      <p>No saved addresses yet.</p>
+      {% if addresses %}
+        <ul>
+          {% for address in addresses %}
+            <li>
+              <strong>{{ address.label }}</strong>{% if address.is_default %} (Default){% endif %}<br>
+              {{ address.recipient_name }}<br>
+              {{ address.line_1 }}{% if address.line_2 %}, {{ address.line_2 }}{% endif %}<br>
+              {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+              {{ address.country }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No saved addresses yet.</p>
+      {% endif %}
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
       <h2>Gold Points</h2>
-      <p>Your current balance is <strong>0 points</strong>.</p>
+      <p>Your current balance is <strong>{{ point_balance }} points</strong>.</p>
+      {% if point_entries %}
+        <ul>
+          {% for entry in point_entries %}
+            <li>
+              {{ entry.created|date:"M d, Y" }}: {{ entry.event|title }} {{ entry.points }} points
+              {% if entry.order %}(Order {{ entry.order.id }}){% endif %}
+              {% if entry.note %} — {{ entry.note }}{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </section>
   </div>
 
