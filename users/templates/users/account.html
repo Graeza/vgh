@@ -30,17 +30,24 @@
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="address-book" role="tabpanel" id="address-book-panel" aria-labelledby="address-book-tab" hidden>
-      <h2>Address Book</h2>
+      <div class="account-tabs__panel-header">
+        <h2>Address Book</h2>
+        <button type="button" class="btn btn-primary btn-sm">Add Address</button>
+      </div>
       {% if addresses %}
-        <ul>
+        <ul class="address-list">
           {% for address in addresses %}
-            <li>
+            <li class="address-list__item">
               <strong>{{ address.label }}</strong>{% if address.is_default %} (Default){% endif %}<br>
               {{ address.recipient_name }}<br>
               {{ address.line_1 }}{% if address.line_2 %}, {{ address.line_2 }}{% endif %}<br>
               {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
               {{ address.country }}<br>
               {{ address.phone }}
+              <div class="address-list__actions">
+                <button type="button" class="btn btn-soft btn-sm">Edit</button>
+                <button type="button" class="btn btn-danger btn-sm">Remove</button>
+              </div>
             </li>
           {% endfor %}
         </ul>
