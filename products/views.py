@@ -146,6 +146,14 @@ def checkout(request):
     return render(request, 'products/checkout.html', context)
 
 
+
+
+def gallery(request):
+    context = {
+        'cart_item_count': _cart_item_count(request),
+    }
+    return render(request, 'products/gallery.html', context)
+
 def policy_page(request, slug):
     page = POLICY_PAGES.get(slug)
     if page is None:

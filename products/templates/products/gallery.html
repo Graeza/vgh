@@ -1,0 +1,61 @@
+{% extends 'main.html' %}
+
+{% block title %}Event Gallery | Von Gold Herb{% endblock %}
+
+{% block content %}
+<section class="gallery-hero card">
+    <span class="pill pill-secondary">Community Moments</span>
+    <h1>Event Gallery</h1>
+    <p>
+        A look back at some of the events we've attended—capturing behind-the-scenes moments,
+        product showcases, and the people we met along the way.
+    </p>
+</section>
+
+<section class="gallery-section">
+    <div class="gallery-section__header">
+        <h2>Photo Highlights</h2>
+        <p>Snapshots from pop-ups, expos, and wellness events.</p>
+    </div>
+
+    <div class="gallery-grid">
+        <article class="gallery-card card">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80" alt="Crowd at an evening event" loading="lazy">
+            <h3>Downtown Wellness Night</h3>
+            <p>Connecting with local supporters during our evening showcase.</p>
+        </article>
+        <article class="gallery-card card">
+            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80" alt="Team at an expo booth" loading="lazy">
+            <h3>Regional Expo Booth</h3>
+            <p>Meeting new customers and sharing product education.</p>
+        </article>
+        <article class="gallery-card card">
+            <img src="https://images.unsplash.com/photo-1467810563316-b5476525c0f9?auto=format&fit=crop&w=1200&q=80" alt="Live event stage lighting" loading="lazy">
+            <h3>Live Showcase</h3>
+            <p>A vibrant night featuring music, culture, and wellness conversations.</p>
+        </article>
+    </div>
+</section>
+
+<section class="gallery-section">
+    <div class="gallery-section__header">
+        <h2>Event Videos</h2>
+        <p>Short video clips from the events we attend.</p>
+    </div>
+
+    <div class="gallery-grid gallery-grid--videos">
+        <article class="gallery-card card">
+            <div class="gallery-video-wrap">
+                <iframe src="https://www.youtube.com/embed/ysz5S6PUM-U" title="Event highlight reel 1" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <h3>Community Pop-Up Recap</h3>
+        </article>
+        <article class="gallery-card card">
+            <div class="gallery-video-wrap">
+                <iframe src="https://www.youtube.com/embed/jNQXAC9IVRw" title="Event highlight reel 2" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <h3>Behind the Booth</h3>
+        </article>
+    </div>
+</section>
+{% endblock %}
