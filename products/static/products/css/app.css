@@ -355,3 +355,17 @@ p {
     gap: 10px;
     flex-wrap: wrap;
 }
+
+
+.form-field {
+    gap: 6px;
+}
+
+.form-checkbox {
+    width: 18px;
+    height: 18px;
+}
+
+.checkout-form {
+    margin-top: 18px;
+}

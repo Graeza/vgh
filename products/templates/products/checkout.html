@@ -22,7 +22,7 @@
           <span>Total due</span>
           <strong>{{ total }} pts</strong>
         </div>
-        <form method="post">
+        <form method="post" class="auth-form stack checkout-form">
           {% csrf_token %}
           <button type="submit" class="btn btn-primary cart-summary__cta" {% if total > available_points or total == 0 %}disabled{% endif %}>Redeem points</button>
         </form>
