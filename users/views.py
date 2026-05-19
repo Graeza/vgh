@@ -2,8 +2,6 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from django.db.models import Sum
-
 from .models import Profile
 
 
@@ -45,7 +43,7 @@ def account(request):
     addresses = profile.addresses.all()
     orders = profile.orders.select_related('product', 'shipping_address')
     point_entries = profile.point_entries.select_related('order')
-    point_balance = point_entries.aggregate(total=Sum('points')).get('total') or 0
+    point_balance = profile.points_balance
 
     context = {
         'addresses': addresses,
