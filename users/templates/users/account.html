@@ -140,12 +140,42 @@
 
   <div class="card account-details-card">
     <h2>Account Details</h2>
-    <p><strong>Username:</strong> {{ request.user.username }}</p>
-    {% if request.user.email %}
-      <p><strong>Email:</strong> {{ request.user.email }}</p>
-    {% else %}
-      <p><strong>Email:</strong> Not set</p>
-    {% endif %}
+    <div>
+      <p><strong>Username:</strong> {{ request.user.username }}</p>
+      <button type="button" class="btn btn-soft btn-sm" data-account-edit="username">Edit Username</button>
+      <form method="POST" data-account-form="username" hidden class="stack">
+        {% csrf_token %}
+        <input type="hidden" name="account_action" value="update_username">
+        <label for="id_account_username">Username</label>
+        <input id="id_account_username" class="input" name="username" type="text" value="{{ request.user.username }}" required>
+        <button type="submit" class="btn btn-primary btn-sm">Save Username</button>
+      </form>
+    </div>
+    <div class="mt-3">
+      {% if request.user.email %}
+        <p><strong>Email:</strong> {{ request.user.email }}</p>
+      {% else %}
+        <p><strong>Email:</strong> Not set</p>
+      {% endif %}
+      <button type="button" class="btn btn-soft btn-sm" data-account-edit="email">Edit Email</button>
+      <form method="POST" data-account-form="email" hidden class="stack">
+        {% csrf_token %}
+        <input type="hidden" name="account_action" value="update_email">
+        <label for="id_account_email">Email</label>
+        <input id="id_account_email" class="input" name="email" type="email" value="{{ request.user.email }}">
+        <button type="submit" class="btn btn-primary btn-sm">Save Email</button>
+      </form>
+    </div>
+    <div class="mt-3">
+      <p><strong>Password:</strong> ••••••••</p>
+      <button type="button" class="btn btn-soft btn-sm" data-account-edit="password">Edit Password</button>
+      <form method="POST" data-account-form="password" hidden class="stack">
+        {% csrf_token %}
+        <input type="hidden" name="account_action" value="update_password">
+        {{ password_form.as_p }}
+        <button type="submit" class="btn btn-primary btn-sm">Save Password</button>
+      </form>
+    </div>
   </div>
 </section>
 
@@ -240,6 +270,16 @@
         fieldMap.phone.value = button.dataset.phone || '';
         fieldMap.isDefault.checked = button.dataset.isDefault === '1';
         openAddressForm();
+      });
+    });
+
+    document.querySelectorAll('[data-account-edit]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.accountEdit;
+        const form = document.querySelector(`[data-account-form="${target}"]`);
+        if (form) {
+          form.hidden = !form.hidden;
+        }
       });
     });
   })();
