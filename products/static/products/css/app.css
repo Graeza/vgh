@@ -148,6 +148,23 @@ p {
     margin: 0;
 }
 
+.cart-item__action-btn {
+    min-width: 34px;
+    padding: 4px 10px;
+    line-height: 1;
+}
+
+.cart-item__remove-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.cart-summary__cta {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    white-space: normal;
+}
+
 .cart-summary {
     height: fit-content;
 }

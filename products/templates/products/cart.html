@@ -25,17 +25,17 @@
                     <form action="{% url 'update-cart-item' item.product.id %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="decrease" />
-                      <button type="submit" class="btn btn-soft">−</button>
+                      <button type="submit" class="btn btn-soft btn-sm cart-item__action-btn" aria-label="Decrease quantity">−</button>
                     </form>
                     <form action="{% url 'update-cart-item' item.product.id %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="increase" />
-                      <button type="submit" class="btn btn-soft">+</button>
+                      <button type="submit" class="btn btn-soft btn-sm cart-item__action-btn" aria-label="Increase quantity">+</button>
                     </form>
                     <form action="{% url 'update-cart-item' item.product.id %}" method="post">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="remove" />
-                      <button type="submit" class="btn btn-soft btn-danger">Remove</button>
+                      <button type="submit" class="btn btn-soft btn-danger btn-sm cart-item__remove-btn">Remove</button>
                     </form>
                   </div>
                   <p>{{ item.subtotal }} pts</p>
@@ -60,7 +60,7 @@
             <strong>{{ total }} pts</strong>
           </div>
 
-          <a href="{% url 'checkout' %}" class="btn btn-primary cart-summary__cta">Proceed to points checkout</a>
+          <a href="{% url 'checkout' %}" class="btn btn-primary btn-sm cart-summary__cta">Proceed to points checkout</a>
         </aside>
       </div>
     {% else %}
