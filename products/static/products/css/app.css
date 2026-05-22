@@ -162,11 +162,14 @@ p {
 .cart-summary__cta {
     padding: 10px 14px;
     font-size: 0.9rem;
+    line-height: 1.35;
     white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .cart-summary {
     height: fit-content;
+    overflow: hidden;
 }
 
 .cart-summary__line {
@@ -182,10 +185,11 @@ p {
 }
 
 .cart-summary__cta {
-    display: inline-block;
+    display: block;
     text-align: center;
     margin-top: 20px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .stripe-element {
