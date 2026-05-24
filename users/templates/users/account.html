@@ -122,7 +122,10 @@
     </section>
 
     <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
-      <h2>Gold Points</h2>
+      <div class="account-tabs__panel-header">
+        <h2>Gold Points</h2>
+        <button type="button" class="btn btn-primary btn-sm">Add Gold Points</button>
+      </div>
       <p>Your current balance is <strong>{{ point_balance }} points</strong>.</p>
       {% if point_entries %}
         <ul>
