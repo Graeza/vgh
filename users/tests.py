@@ -21,3 +21,20 @@ class AccountPointBalanceTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['point_balance'], 250)
+
+
+class PointsPurchaseEntryPointTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='buyer', password='password123')
+
+    def test_account_has_purchase_points_button(self):
+        self.client.login(username='buyer', password='password123')
+        response = self.client.get(reverse('account'))
+
+        self.assertContains(response, reverse('points-checkout'))
+
+    def test_points_checkout_page_loads(self):
+        self.client.login(username='buyer', password='password123')
+        response = self.client.get(reverse('points-checkout'))
+
+        self.assertEqual(response.status_code, 200)
