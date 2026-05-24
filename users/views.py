@@ -1,17 +1,10 @@
-import os
-
-import stripe
-from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponseBadRequest
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-
 from .forms import AccountDetailsForm
-from .models import PointLedger, Profile
+from .models import Profile
 
 
 # Create your views here.
@@ -113,50 +106,6 @@ def account(request):
         'point_balance': point_balance,
     }
     return render(request, "users/account.html", context)
-
-
-@login_required
-def points_checkout(request):
-    if request.method == 'POST':
-        try:
-            points_to_buy = int(request.POST.get('points', 0))
-        except (TypeError, ValueError):
-            return HttpResponseBadRequest('Invalid points amount.')
-
-        if points_to_buy <= 0:
-            return HttpResponseBadRequest('Points amount must be greater than zero.')
-
-        if not settings.STRIPE_SECRET_KEY:
-            messages.error(request, 'Stripe is not configured yet. Please contact support.')
-            return redirect('points-checkout')
-
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            mode='payment',
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': settings.POINTS_CURRENCY,
-                        'unit_amount': points_to_buy * 100,
-                        'product_data': {
-                            'name': f'{points_to_buy} Gold Points',
-                            'description': '1 point = 1 Rand',
-                        },
-                    },
-                    'quantity': 1,
-                }
-            ],
-            metadata={
-                'user_id': request.user.id,
-                'points': points_to_buy,
-            },
-            success_url=request.build_absolute_uri('/auth/account/') + '?points_purchase=success',
-            cancel_url=request.build_absolute_uri('/auth/account/points/checkout/') + '?status=cancelled',
-        )
-        return redirect(checkout_session.url)
-
-    return render(request, 'users/points_checkout.html', {'points_currency': settings.POINTS_CURRENCY.upper()})
 
 
 @login_required
