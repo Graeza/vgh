@@ -124,6 +124,7 @@
     <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
       <h2>Gold Points</h2>
       <p>Your current balance is <strong>{{ point_balance }} points</strong>.</p>
+      <a href="{% url 'points-checkout' %}" class="btn btn-primary btn-sm">Purchase Points</a>
       {% if point_entries %}
         <ul>
           {% for entry in point_entries %}
