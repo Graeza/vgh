@@ -4,6 +4,13 @@
 <section class="container py-4 account-page">
   <h1>My Account</h1>
   <p>Welcome back, {{ request.user.get_username }}.</p>
+  {% if messages %}
+    <ul class="stack">
+      {% for message in messages %}
+        <li class="card">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
   <div class="card account-tabs" data-account-tabs>
     <div class="account-tabs__nav" role="tablist" aria-label="Account sections">
@@ -124,9 +131,22 @@
     <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
       <div class="account-tabs__panel-header">
         <h2>Gold Points</h2>
-        <button type="button" class="btn btn-primary btn-sm">Add Gold Points</button>
+        <button type="button" class="btn btn-primary btn-sm" data-points-add>Add Gold Points</button>
       </div>
       <p>Your current balance is <strong>{{ point_balance }} points</strong>.</p>
+      <div class="card address-form-card" data-points-form hidden>
+        <h3>Purchase Gold Points</h3>
+        <p>1 point = R1. You will be redirected to Stripe checkout.</p>
+        <form method="POST" action="{% url 'create-points-checkout-session' %}" class="auth-form stack">
+          {% csrf_token %}
+          <label for="id_points">Number of points</label>
+          <input id="id_points" class="input" type="number" min="1" name="points" value="10" required>
+          <div class="address-form-card__actions">
+            <button type="submit" class="btn btn-primary">Pay with Stripe</button>
+            <button type="button" class="btn btn-soft" data-points-cancel>Cancel</button>
+          </div>
+        </form>
+      </div>
       {% if point_entries %}
         <ul>
           {% for entry in point_entries %}
@@ -247,6 +267,18 @@
         fieldMap.isDefault.checked = button.dataset.isDefault === '1';
         openAddressForm();
       });
+    });
+
+    const addPointsButton = tabsRoot.querySelector('[data-points-add]');
+    const pointsFormCard = tabsRoot.querySelector('[data-points-form]');
+    const cancelPointsButton = tabsRoot.querySelector('[data-points-cancel]');
+
+    addPointsButton?.addEventListener('click', () => {
+      pointsFormCard.hidden = false;
+    });
+
+    cancelPointsButton?.addEventListener('click', () => {
+      pointsFormCard.hidden = true;
     });
   })();
 </script>
