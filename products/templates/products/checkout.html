@@ -63,8 +63,9 @@
       </div>
 
       <div class="invoice-payment stack">
-        <h3>Payment details</h3>
+        <h3>Payment Details</h3>
         <p class="text-muted">Available points: {{ available_points }} pts</p>
+        <script src="https://js.stripe.com/v3/"></script>
         {% if needs_shipping_details_form %}
           <div class="stack" style="margin-bottom: 1rem;">
             <p class="text-muted">Shipping is selected and we still need your contact and address details.</p>
@@ -84,14 +85,16 @@
             </form>
           </div>
         {% endif %}
-        <form method="post" class="auth-form stack checkout-form">
+        <form id="payment-form" method="post" class="auth-form stack checkout-form">
           {% csrf_token %}
           <input type="hidden" name="action" value="redeem-points">
+          <div id="payment-element" class="stripe-element"></div>
           <div class="row" style="gap:0.5rem;">
-            <button type="submit" class="btn btn-primary cart-summary__cta" {% if total > available_points or total == 0 or needs_shipping_details_form %}disabled{% endif %}>Redeem points</button>
-            <a href="{% url 'cart' %}" class="btn btn-soft cart-summary__cta">Back to cart</a>
+            <button id="submit" type="submit" class="btn btn-primary cart-summary__cta" {% if total > available_points or total == 0 or needs_shipping_details_form %}disabled{% endif %}>Pay Now</button>
+            <a href="{% url 'cart' %}" class="btn btn-soft cart-summary__cta">Back to Cart</a>
             <a href="{% url 'account' %}" class="btn btn-soft cart-summary__cta">Add points</a>
           </div>
+          <div id="payment-message" class="payment-error"></div>
         </form>
         {% if total > available_points %}
           <p class="text-muted">You need {{ needed_points }} more points to complete this purchase.</p>
