@@ -56,13 +56,15 @@ def _build_cart_context(request):
         })
 
     subtotal = sum((item['subtotal'] for item in cart_items), 0)
-    shipping = 0
+    shipping_selected = request.session.get('shipping_selected', False)
+    shipping = 125 if cart_items and shipping_selected else 0
     total = subtotal + shipping
 
     return {
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping': shipping if cart_items else 0,
+        'shipping_selected': shipping_selected if cart_items else False,
         'total': total if cart_items else 0,
         'cart_item_count': sum(item['quantity'] for item in cart_items),
     }
@@ -192,6 +194,11 @@ def cart(request):
     if not request.session.get('age_verified'):
         return redirect('home')
 
+    if request.method == 'POST':
+        request.session['shipping_selected'] = request.POST.get('shipping_selected') == 'on'
+        request.session.modified = True
+        return redirect('cart')
+
     context = _build_cart_context(request)
     return render(request, 'products/cart.html', context)
 
@@ -213,6 +220,17 @@ def checkout(request):
         if not cart_context['cart_items']:
             messages.error(request, 'Your cart is empty.')
             return redirect('cart')
+
+        if cart_context['shipping_selected']:
+            default_address = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+            has_contact_details = bool(profile.full_name and profile.email)
+            has_shipping_details = bool(default_address and default_address.phone)
+            if not default_address or not has_contact_details or not has_shipping_details:
+                messages.error(
+                    request,
+                    'Shipping requires a saved address book entry plus contact details (full name, email, and phone).',
+                )
+                return redirect('cart')
 
         if profile.points_balance < total:
             messages.error(request, 'You do not have enough points for this order.')
