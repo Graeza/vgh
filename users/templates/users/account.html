@@ -14,12 +14,12 @@
 
   <div class="card account-tabs" data-account-tabs>
     <div class="account-tabs__nav" role="tablist" aria-label="Account sections">
-      <button class="account-tabs__button is-active" type="button" data-tab-target="orders" role="tab" aria-selected="true" aria-controls="orders-panel" id="orders-tab">Orders</button>
+      <button class="account-tabs__button is-active" type="button" data-tab-target="gold-points" role="tab" aria-selected="true" aria-controls="gold-points-panel" id="gold-points-tab">Gold Points</button>
+      <button class="account-tabs__button" type="button" data-tab-target="orders" role="tab" aria-selected="false" aria-controls="orders-panel" id="orders-tab">Orders</button>
       <button class="account-tabs__button" type="button" data-tab-target="address-book" role="tab" aria-selected="false" aria-controls="address-book-panel" id="address-book-tab">Address Book</button>
-      <button class="account-tabs__button" type="button" data-tab-target="gold-points" role="tab" aria-selected="false" aria-controls="gold-points-panel" id="gold-points-tab">Gold Points</button>
     </div>
 
-    <section class="account-tabs__panel is-active" data-tab-panel="orders" role="tabpanel" id="orders-panel" aria-labelledby="orders-tab">
+    <section class="account-tabs__panel" data-tab-panel="orders" role="tabpanel" id="orders-panel" aria-labelledby="orders-tab" hidden>
       <h2>Orders</h2>
       {% if orders %}
         <ul>
@@ -128,7 +128,7 @@
       {% endif %}
     </section>
 
-    <section class="account-tabs__panel" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab" hidden>
+    <section class="account-tabs__panel is-active" data-tab-panel="gold-points" role="tabpanel" id="gold-points-panel" aria-labelledby="gold-points-tab">
       <div class="account-tabs__panel-header">
         <h2>Gold Points</h2>
         <button type="button" class="btn btn-primary btn-sm" data-points-add>Add Gold Points</button>
