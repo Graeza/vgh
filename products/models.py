@@ -88,3 +88,9 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class InvoiceSequence(models.Model):
+    """Global sequence used to generate unique invoice numbers."""
+
+    next_number = models.PositiveIntegerField(default=1)
