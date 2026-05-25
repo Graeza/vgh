@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
@@ -9,60 +10,42 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.template.loader import render_to_string
+from django.template.loader import get_template, render_to_string
 from .forms import AccountDetailsForm
 from .models import PointLedger, Profile
+from xhtml2pdf import pisa
 
 
-def _build_simple_invoice_pdf(order):
-    def _escape(value):
-        text = str(value or '')
-        return text.replace('\\', '\\\\').replace('(', '\\(').replace(')', '\\)')
+def _build_invoice_pdf_response(order, filename):
+    static_path = settings.STATIC_ROOT
 
-    lines = [
-        'VGH Invoice',
-        f'Invoice Number: {order.get("invoice_number", "")}',
-        f'Created: {order.get("created", "")}',
-        f'Customer: {order.get("user", {}).get("username", "")}',
-        f'Email: {order.get("user", {}).get("email", "")}',
-        '',
-        'Items:',
-    ]
-    for item in order.get('items', []):
-        lines.append(
-            f"- {item.get('product_title', '')} x{item.get('quantity', 0)} = {item.get('line_total', 0)}"
-        )
-    lines.extend(['', f"Total: {order.get('total', 0)}"])
+    def link_callback(uri, rel):
+        if uri.startswith(settings.STATIC_URL):
+            return os.path.join(static_path, uri.replace(settings.STATIC_URL, ''))
+        return os.path.join(static_path, uri)
 
-    text_ops = ['BT', '/F1 12 Tf', '50 780 Td', '14 TL']
-    for idx, line in enumerate(lines):
-        text_ops.append(f'({_escape(line)}) Tj')
-        if idx < len(lines) - 1:
-            text_ops.append('T*')
-    text_ops.append('ET')
-    content = '\n'.join(text_ops).encode('utf-8')
+    template = get_template('products/invoice_pdf.html')
+    html = template.render({
+        'order': order,
+        'logo_path': os.path.join(static_path, 'images', 'vgh_logo.svg'),
+        'font_path': os.path.join(static_path, 'fonts'),
+    })
 
-    objects = [
-        b'1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
-        b'2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
-        b'3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n',
-        b'4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
-        f'5 0 obj\n<< /Length {len(content)} >>\nstream\n'.encode('utf-8') + content + b'\nendstream\nendobj\n',
-    ]
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}.pdf"'
 
-    pdf = bytearray(b'%PDF-1.4\n')
-    offsets = [0]
-    for obj in objects:
-        offsets.append(len(pdf))
-        pdf.extend(obj)
+    pisa_status = pisa.CreatePDF(
+        html,
+        dest=response,
+        link_callback=link_callback,
+        encoding='UTF-8',
+    )
 
-    xref_pos = len(pdf)
-    pdf.extend(f'xref\n0 {len(offsets)}\n'.encode('utf-8'))
-    pdf.extend(b'0000000000 65535 f \n')
-    for offset in offsets[1:]:
-        pdf.extend(f'{offset:010d} 00000 n \n'.encode('utf-8'))
-    pdf.extend(f'trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{xref_pos}\n%%EOF'.encode('utf-8'))
-    return bytes(pdf)
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    return response
+
 
 
 # Create your views here.
@@ -214,10 +197,7 @@ def invoice_download(request, invoice_number):
         'total': sum(order.quantity * order.unit_price for order in invoice_orders),
     }
 
-    pdf_bytes = _build_simple_invoice_pdf(invoice_snapshot)
-    response = HttpResponse(pdf_bytes, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{invoice_number}.pdf"'
-    return response
+    return _build_invoice_pdf_response(invoice_snapshot, invoice_number)
 
 
 @login_required

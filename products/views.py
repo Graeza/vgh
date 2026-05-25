@@ -1,12 +1,15 @@
+import os
 from decimal import Decimal
 from uuid import UUID
 
 from django.http import Http404, HttpResponse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.template.loader import get_template, render_to_string
 from django.contrib import messages
 from django.db import transaction
+from xhtml2pdf import pisa
 
 from .models import InvoiceSequence, Product
 from .forms import CheckoutShippingDetailsForm, ProductForm
@@ -15,58 +18,35 @@ from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
 
 
-def _build_simple_invoice_pdf(order):
-    def _escape(value):
-        text = str(value or '')
-        return text.replace('\\', '\\\\').replace('(', '\\(').replace(')', '\\)')
+def _build_invoice_pdf_response(order, filename):
+    static_path = settings.STATIC_ROOT
 
-    lines = [
-        'VGH Invoice',
-        f'Invoice Number: {order.get("invoice_number", "")}',
-        f'Created: {order.get("created", "")}',
-        f'Customer: {order.get("user", {}).get("username", "")}',
-        f'Email: {order.get("user", {}).get("email", "")}',
-        '',
-        'Items:',
-    ]
-    for item in order.get('items', []):
-        lines.append(
-            f"- {item.get('product_title', '')} x{item.get('quantity', 0)} = {item.get('line_total', 0)}"
-        )
-    lines.extend(['', f"Total: {order.get('total', 0)}"])
+    def link_callback(uri, rel):
+        if uri.startswith(settings.STATIC_URL):
+            return os.path.join(static_path, uri.replace(settings.STATIC_URL, ''))
+        return os.path.join(static_path, uri)
 
-    text_ops = ['BT', '/F1 12 Tf', '50 780 Td', '14 TL']
-    for idx, line in enumerate(lines):
-        escaped = _escape(line)
-        text_ops.append(f'({escaped}) Tj')
-        if idx < len(lines) - 1:
-            text_ops.append('T*')
-    text_ops.append('ET')
-    content = '\n'.join(text_ops).encode('utf-8')
+    template = get_template('products/invoice_pdf.html')
+    html = template.render({
+        'order': order,
+        'logo_path': os.path.join(static_path, 'images', 'vgh_logo.svg'),
+        'font_path': os.path.join(static_path, 'fonts'),
+    })
 
-    objects = []
-    objects.append(b'1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n')
-    objects.append(b'2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n')
-    objects.append(
-        b'3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n'
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}.pdf"'
+
+    pisa_status = pisa.CreatePDF(
+        html,
+        dest=response,
+        link_callback=link_callback,
+        encoding='UTF-8',
     )
-    objects.append(b'4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n')
-    objects.append(f'5 0 obj\n<< /Length {len(content)} >>\nstream\n'.encode('utf-8') + content + b'\nendstream\nendobj\n')
 
-    pdf = bytearray(b'%PDF-1.4\n')
-    offsets = [0]
-    for obj in objects:
-        offsets.append(len(pdf))
-        pdf.extend(obj)
-    xref_pos = len(pdf)
-    pdf.extend(f'xref\n0 {len(offsets)}\n'.encode('utf-8'))
-    pdf.extend(b'0000000000 65535 f \n')
-    for offset in offsets[1:]:
-        pdf.extend(f'{offset:010d} 00000 n \n'.encode('utf-8'))
-    pdf.extend(
-        f'trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{xref_pos}\n%%EOF'.encode('utf-8')
-    )
-    return bytes(pdf)
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    return response
 
 
 def _get_cart_data(request):
@@ -441,10 +421,7 @@ def invoice_pdf(request):
         messages.error(request, 'No invoice is available to download.')
         return redirect('products-list')
 
-    pdf_bytes = _build_simple_invoice_pdf(invoice)
-    response = HttpResponse(pdf_bytes, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{invoice["invoice_number"]}.pdf"'
-    return response
+    return _build_invoice_pdf_response(invoice, invoice['invoice_number'])
 
 
 
