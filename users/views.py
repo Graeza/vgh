@@ -191,9 +191,22 @@ def points_purchase_success(request):
     return redirect('account')
 
 
+def _get_session_metadata(session):
+    metadata = getattr(session, 'metadata', None) or {}
+    if isinstance(metadata, dict):
+        return metadata
+
+    to_dict = getattr(metadata, 'to_dict', None)
+    if callable(to_dict):
+        return to_dict()
+
+    return dict(metadata)
+
+
 def _credit_points_for_session(session):
-    points = int((session.metadata or {}).get('points', '0'))
-    user_id = (session.metadata or {}).get('user_id')
+    metadata = _get_session_metadata(session)
+    points = int(metadata.get('points', '0'))
+    user_id = metadata.get('user_id')
     session_note = f'Stripe session: {session.id}'
     if points < 1 or not user_id:
         return 0
