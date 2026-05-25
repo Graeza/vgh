@@ -1,9 +1,10 @@
 from decimal import Decimal
 from uuid import UUID
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.contrib import messages
 
 from .models import Product
@@ -30,6 +31,9 @@ def _cart_item_count(request):
         except (TypeError, ValueError):
             continue
     return total
+
+
+from django.utils import timezone
 
 
 def _build_cart_context(request):
@@ -67,6 +71,31 @@ def _build_cart_context(request):
         'shipping_selected': shipping_selected if cart_items else False,
         'total': total if cart_items else 0,
         'cart_item_count': sum(item['quantity'] for item in cart_items),
+    }
+
+
+def _build_invoice_snapshot(request, cart_context, profile):
+    cart_items = []
+    for item in cart_context['cart_items']:
+        cart_items.append({
+            'product_title': item['product'].title,
+            'quantity': item['quantity'],
+            'line_total': item['subtotal'],
+        })
+
+    latest_order_number = request.session.get('latest_order_number', 0) + 1
+    request.session['latest_order_number'] = latest_order_number
+
+    invoice_number = f'INV-{latest_order_number:06d}'
+    return {
+        'invoice_number': invoice_number,
+        'created': timezone.now().isoformat(),
+        'total': cart_context['total'],
+        'items': cart_items,
+        'user': {
+            'username': profile.username or profile.user.username,
+            'email': profile.email or profile.user.email,
+        },
     }
 
 
@@ -244,9 +273,11 @@ def checkout(request):
             event='redeemed',
             note='Redeemed points at checkout',
         )
+        invoice_snapshot = _build_invoice_snapshot(request, cart_context, profile)
+        request.session['latest_invoice'] = invoice_snapshot
         _save_cart_data(request, {})
         messages.success(request, f'Checkout complete. {total} points redeemed.')
-        return redirect('products-list')
+        return redirect('checkout-success')
 
     context = {
         'cart_items': cart_context['cart_items'],
@@ -259,6 +290,33 @@ def checkout(request):
         'needed_points': max(total - profile.points_balance, 0),
     }
     return render(request, 'products/checkout.html', context)
+
+
+@login_required
+def checkout_success(request):
+    invoice = request.session.get('latest_invoice')
+    if not invoice:
+        messages.error(request, 'No completed purchase was found.')
+        return redirect('products-list')
+
+    context = {
+        'order': invoice,
+        'cart_item_count': _cart_item_count(request),
+    }
+    return render(request, 'products/success.html', context)
+
+
+@login_required
+def invoice_pdf(request):
+    invoice = request.session.get('latest_invoice')
+    if not invoice:
+        messages.error(request, 'No invoice is available to download.')
+        return redirect('products-list')
+
+    html = render_to_string('products/invoice_pdf.html', {'order': invoice})
+    response = HttpResponse(html, content_type='text/html')
+    response['Content-Disposition'] = f'attachment; filename="{invoice["invoice_number"]}.html"'
+    return response
 
 
 
