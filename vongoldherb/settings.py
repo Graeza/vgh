@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -126,7 +129,12 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Stripe settings
-# Prefer explicit test key env vars when provided, with fallback to generic names.
-STRIPE_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY') or os.getenv('STRIPE_SECRET_KEY', '')
-STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_TEST_PUBLIC_KEY') or os.getenv('STRIPE_PUBLISHABLE_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+# Switch between test/live depending on DEBUG
+if os.getenv("DEBUG", "True") == "True":
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_TEST_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_TEST_PUBLISHABLE_KEY")
+else:
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_LIVE_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_LIVE_PUBLISHABLE_KEY")
+
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
