@@ -4,36 +4,83 @@
 
 {% block content %}
 <div class="main-container">
-  <div class="stack checkout-container">
-    <div class="row cart-header-row">
-      <h2>Checkout</h2>
-      <a href="{% url 'cart' %}" class="btn btn-soft">Back to cart</a>
+  <div class="invoice-container card">
+    <div class="invoice-header">
+      <div>
+        <h2>Invoice</h2>
+        <p class="text-muted">Points redemption checkout</p>
+      </div>
+      <div class="invoice-meta">
+        <p><strong>Date:</strong> {% now "d M Y" %}</p>
+        <p><strong>Billed To:</strong> {{ request.user.username }}</p>
+        <p><strong>Email:</strong> {{ request.user.email }}</p>
+      </div>
     </div>
 
-    <div class="cart-layout">
-      <section class="card">
-        <h3>Redeem points</h3>
-        <p class="text-muted">Use your points balance to place this order.</p>
+    {% if cart_items %}
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="right">Qty</th>
+            <th class="right">Price (pts)</th>
+            <th class="right">Total (pts)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart_items %}
+            <tr>
+              <td>{{ item.product.title }}</td>
+              <td class="right">{{ item.quantity }}</td>
+              <td class="right">{{ item.product.price }}</td>
+              <td class="right">{{ item.subtotal }}</td>
+            </tr>
+          {% endfor %}
+          {% if shipping_selected %}
+            <tr>
+              <td>Shipping</td>
+              <td class="right">1</td>
+              <td class="right">{{ shipping }}</td>
+              <td class="right">{{ shipping }}</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <div class="invoice-total stack">
         <div class="cart-summary__line">
-          <span>Available points</span>
-          <strong>{{ available_points }} pts</strong>
+          <span>Subtotal</span>
+          <strong>{{ subtotal }} pts</strong>
+        </div>
+        <div class="cart-summary__line">
+          <span>Shipping</span>
+          <strong>{{ shipping }} pts</strong>
         </div>
         <div class="cart-summary__line cart-summary__line--total">
-          <span>Total due</span>
+          <span>Grand Total</span>
           <strong>{{ total }} pts</strong>
         </div>
+      </div>
+
+      <div class="invoice-payment stack">
+        <h3>Payment details</h3>
+        <p class="text-muted">Available points: {{ available_points }} pts</p>
         <form method="post" class="auth-form stack checkout-form">
           {% csrf_token %}
           <div class="row" style="gap:0.5rem;">
             <button type="submit" class="btn btn-primary cart-summary__cta" {% if total > available_points or total == 0 %}disabled{% endif %}>Redeem points</button>
+            <a href="{% url 'cart' %}" class="btn btn-soft cart-summary__cta">Back to cart</a>
             <a href="{% url 'account' %}" class="btn btn-soft cart-summary__cta">Add points</a>
           </div>
         </form>
         {% if total > available_points %}
           <p class="text-muted">You need {{ needed_points }} more points to complete this purchase.</p>
         {% endif %}
-      </section>
-    </div>
+      </div>
+    {% else %}
+      <p class="text-muted">Your cart is empty. Add products before checking out.</p>
+      <a href="{% url 'products-list' %}" class="btn btn-soft">Continue shopping</a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

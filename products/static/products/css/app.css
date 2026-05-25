@@ -390,3 +390,57 @@ p {
 .checkout-form {
     margin-top: 18px;
 }
+
+
+.invoice-container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.invoice-meta p {
+    margin: 0.2rem 0;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.invoice-table th,
+.invoice-table td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.7rem;
+    text-align: left;
+}
+
+.invoice-table .right {
+    text-align: right;
+}
+
+.invoice-total {
+    margin-top: 1rem;
+    margin-left: auto;
+    max-width: 360px;
+}
+
+.invoice-payment {
+    margin-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+@media (max-width: 720px) {
+    .invoice-header {
+        flex-direction: column;
+    }
+}

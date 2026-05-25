@@ -249,6 +249,10 @@ def checkout(request):
         return redirect('products-list')
 
     context = {
+        'cart_items': cart_context['cart_items'],
+        'subtotal': cart_context['subtotal'],
+        'shipping': cart_context['shipping'],
+        'shipping_selected': cart_context['shipping_selected'],
         'total': total,
         'cart_item_count': cart_context['cart_item_count'],
         'available_points': profile.points_balance,
