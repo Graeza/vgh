@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db import transaction
 
 from .models import InvoiceSequence, Product
-from .forms import ProductForm
+from .forms import CheckoutShippingDetailsForm, ProductForm
 from users.models import PointLedger
 from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
@@ -251,8 +251,53 @@ def checkout(request):
         return redirect('login')
 
     profile = request.user.profile
+    default_address = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+    has_contact_details = bool(profile.full_name and profile.email)
+    has_shipping_details = bool(default_address and default_address.phone)
+    needs_shipping_details_form = cart_context['shipping_selected'] and (
+        not default_address or not has_contact_details or not has_shipping_details
+    )
+
+    if needs_shipping_details_form:
+        initial_details = {
+            'full_name': profile.full_name or request.user.get_full_name() or request.user.username,
+            'email': profile.email or request.user.email,
+            'phone': default_address.phone if default_address else '',
+            'label': default_address.label if default_address else 'Home',
+            'line_1': default_address.line_1 if default_address else '',
+            'line_2': default_address.line_2 if default_address else '',
+            'city': default_address.city if default_address else '',
+            'state': default_address.state if default_address else '',
+            'postal_code': default_address.postal_code if default_address else '',
+            'country': default_address.country if default_address else 'US',
+        }
+    else:
+        initial_details = {}
+
+    shipping_details_form = CheckoutShippingDetailsForm(initial=initial_details)
 
     if request.method == 'POST':
+        if request.POST.get('action') == 'save-shipping-details':
+            shipping_details_form = CheckoutShippingDetailsForm(request.POST)
+            if shipping_details_form.is_valid():
+                shipping_details_form.save(profile)
+                messages.success(request, 'Shipping and contact details saved.')
+                return redirect('checkout')
+            messages.error(request, 'Please correct the shipping details below.')
+            context = {
+                'cart_items': cart_context['cart_items'],
+                'subtotal': cart_context['subtotal'],
+                'shipping': cart_context['shipping'],
+                'shipping_selected': cart_context['shipping_selected'],
+                'total': total,
+                'cart_item_count': cart_context['cart_item_count'],
+                'available_points': profile.points_balance,
+                'needed_points': max(total - profile.points_balance, 0),
+                'shipping_details_form': shipping_details_form,
+                'needs_shipping_details_form': True,
+            }
+            return render(request, 'products/checkout.html', context)
+
         if not cart_context['cart_items']:
             messages.error(request, 'Your cart is empty.')
             return redirect('cart')
@@ -262,11 +307,8 @@ def checkout(request):
             has_contact_details = bool(profile.full_name and profile.email)
             has_shipping_details = bool(default_address and default_address.phone)
             if not default_address or not has_contact_details or not has_shipping_details:
-                messages.error(
-                    request,
-                    'Shipping requires a saved address book entry plus contact details (full name, email, and phone).',
-                )
-                return redirect('cart')
+                messages.error(request, 'Please save your shipping and contact details before checkout.')
+                return redirect('checkout')
 
         if profile.points_balance < total:
             messages.error(request, 'You do not have enough points for this order.')
@@ -295,6 +337,8 @@ def checkout(request):
         'cart_item_count': cart_context['cart_item_count'],
         'available_points': profile.points_balance,
         'needed_points': max(total - profile.points_balance, 0),
+        'shipping_details_form': shipping_details_form,
+        'needs_shipping_details_form': needs_shipping_details_form,
     }
     return render(request, 'products/checkout.html', context)
 
