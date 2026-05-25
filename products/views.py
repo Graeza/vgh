@@ -130,7 +130,7 @@ def _build_invoice_snapshot(request, cart_context, profile):
         sequence.next_number += 1
         sequence.save(update_fields=['next_number'])
 
-    invoice_number = f'INV-{latest_order_number:06d}'
+    invoice_number = f"VGH-Invoice-{timezone.now():%Y%m%d}-{latest_order_number:04d}"
     return {
         'invoice_number': invoice_number,
         'created': timezone.now().isoformat(),
