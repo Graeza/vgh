@@ -47,6 +47,13 @@
 
         <aside class="card cart-summary">
           <h3>Order summary</h3>
+          <form action="{% url 'cart' %}" method="post" style="margin-bottom: 1rem;">
+            {% csrf_token %}
+            <label style="display: inline-flex; gap: 0.5rem; align-items: center;">
+              <input type="checkbox" name="shipping_selected" {% if shipping_selected %}checked{% endif %} onchange="this.form.submit()">
+              <span>Ship order (+125 pts)</span>
+            </label>
+          </form>
           <div class="cart-summary__line">
             <span>Subtotal</span>
             <strong>{{ subtotal }} pts</strong>
