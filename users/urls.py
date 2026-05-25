@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', views.logout_user, name='logout'),
     path('inbox/', views.inbox, name='inbox'),
     path('account/', views.account, name='account'),
+    path('account/invoice/<str:invoice_number>/', views.invoice_download, name='account-invoice-download'),
     path('account/edit/', views.edit_account_details, name='edit-account-details'),
     path('account/points/checkout/', views.create_points_checkout_session, name='create-points-checkout-session'),
     path('account/points/success/', views.points_purchase_success, name='points-purchase-success'),

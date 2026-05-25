@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
 from .forms import AccountDetailsForm
 from .models import PointLedger, Profile
 
@@ -101,7 +102,19 @@ def account(request):
                 return redirect('account')
 
     addresses = profile.addresses.all()
-    orders = profile.orders.filter(status='paid').select_related('product', 'shipping_address')
+    paid_orders = profile.orders.filter(status='paid').select_related('product')
+    orders_by_invoice = {}
+    for order in paid_orders:
+        if not order.invoice_number:
+            continue
+        if order.invoice_number not in orders_by_invoice:
+            orders_by_invoice[order.invoice_number] = {
+                'invoice_number': order.invoice_number,
+                'placed_at': order.placed_at,
+                'points_redeemed': 0,
+            }
+        orders_by_invoice[order.invoice_number]['points_redeemed'] += int(order.quantity * order.unit_price)
+    orders = sorted(orders_by_invoice.values(), key=lambda entry: entry['placed_at'], reverse=True)
     point_entries = profile.point_entries.select_related('order')
     point_balance = profile.points_balance
 
@@ -113,6 +126,47 @@ def account(request):
         'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
     }
     return render(request, "users/account.html", context)
+
+
+@login_required
+def invoice_download(request, invoice_number):
+    profile, _ = Profile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'username': request.user.username,
+            'email': request.user.email,
+            'full_name': request.user.get_full_name(),
+        },
+    )
+    invoice_orders = list(
+        profile.orders.filter(status='paid', invoice_number=invoice_number).select_related('product')
+    )
+    if not invoice_orders:
+        messages.error(request, 'No invoice is available to download.')
+        return redirect('account')
+
+    invoice_snapshot = {
+        'invoice_number': invoice_number,
+        'created': invoice_orders[0].placed_at,
+        'user': {
+            'username': profile.username or request.user.username,
+            'email': profile.email or request.user.email,
+        },
+        'items': [
+            {
+                'product_title': order.product.title,
+                'quantity': order.quantity,
+                'line_total': order.quantity * order.unit_price,
+            }
+            for order in invoice_orders
+        ],
+        'total': sum(order.quantity * order.unit_price for order in invoice_orders),
+    }
+
+    html = render_to_string('products/invoice_pdf.html', {'order': invoice_snapshot})
+    response = HttpResponse(html, content_type='text/html')
+    response['Content-Disposition'] = f'attachment; filename="{invoice_number}.html"'
+    return response
 
 
 @login_required
