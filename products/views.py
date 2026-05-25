@@ -121,11 +121,51 @@ def add_product(request):
     else:
         form = ProductForm()
 
+    products = Product.objects.all().order_by('title')
+
     context = {
         'form': form,
+        'products': products,
         'cart_item_count': _cart_item_count(request),
     }
     return render(request, 'products/add_product.html', context)
+
+
+@login_required
+def edit_product(request, product_id):
+    if not request.user.is_superuser:
+        raise Http404('Page not found.')
+
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product updated successfully.')
+            return redirect('add-product')
+    else:
+        form = ProductForm(instance=product)
+
+    context = {
+        'form': form,
+        'products': Product.objects.all().order_by('title'),
+        'editing_product': product,
+        'cart_item_count': _cart_item_count(request),
+    }
+    return render(request, 'products/add_product.html', context)
+
+
+@login_required
+def delete_product(request, product_id):
+    if not request.user.is_superuser:
+        raise Http404('Page not found.')
+    if request.method != 'POST':
+        return redirect('add-product')
+
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, 'Product deleted successfully.')
+    return redirect('add-product')
 
 
 def product(request, slug):

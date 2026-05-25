@@ -1,11 +1,17 @@
 {% extends 'main.html' %}
 
-{% block title %}Add Product{% endblock %}
+{% block title %}Manage Products{% endblock %}
 
 {% block content %}
 <div class="main-container">
   <div class="stack">
-    <h2>Add Product</h2>
+    <div class="row" style="justify-content:space-between;align-items:center;">
+      <h2>{% if editing_product %}Edit Product{% else %}Add Product{% endif %}</h2>
+      {% if editing_product %}
+        <a href="{% url 'add-product' %}" class="btn btn-soft">Create New Product</a>
+      {% endif %}
+    </div>
+
     <div class="card">
       <form method="post" enctype="multipart/form-data" class="auth-form stack">
         {% csrf_token %}
@@ -28,10 +34,36 @@
         {% endfor %}
 
         <div class="address-form-card__actions">
-          <button type="submit" class="btn btn-primary">Save Product</button>
-          <a href="{% url 'products-list' %}" class="btn btn-soft">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if editing_product %}Update Product{% else %}Save Product{% endif %}
+          </button>
+          <a href="{% url 'products-list' %}" class="btn btn-soft">Back to Products</a>
         </div>
       </form>
+    </div>
+
+    <div class="stack">
+      <h3>Current Products</h3>
+      <div class="grid-3">
+        {% for product in products %}
+          <div class="card">
+            <h4>{{ product.title }}</h4>
+            <p class="text-muted">{{ product.get_category_display }} · {{ product.price|default:"0"|floatformat:0 }} pts</p>
+            <p class="text-muted">Stock: {{ product.stock_quantity }}{% if not product.is_active %} · Inactive{% endif %}</p>
+            <div class="address-form-card__actions">
+              <a href="{% url 'edit-product' product.id %}" class="btn btn-secondary">Edit</a>
+              <form method="post" action="{% url 'delete-product' product.id %}" onsubmit="return confirm('Delete {{ product.title|escapejs }}?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-soft">Delete</button>
+              </form>
+            </div>
+          </div>
+        {% empty %}
+          <div class="card">
+            <p class="text-muted">No products yet.</p>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
