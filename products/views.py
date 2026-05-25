@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.contrib import messages
+from django.db import transaction
 
-from .models import Product
+from .models import InvoiceSequence, Product
 from .forms import ProductForm
 from users.models import PointLedger
 from .policy_content import POLICY_PAGES
@@ -83,8 +84,14 @@ def _build_invoice_snapshot(request, cart_context, profile):
             'line_total': item['subtotal'],
         })
 
-    latest_order_number = request.session.get('latest_order_number', 0) + 1
-    request.session['latest_order_number'] = latest_order_number
+    with transaction.atomic():
+        sequence, _ = InvoiceSequence.objects.select_for_update().get_or_create(
+            pk=1,
+            defaults={'next_number': 1},
+        )
+        latest_order_number = sequence.next_number
+        sequence.next_number += 1
+        sequence.save(update_fields=['next_number'])
 
     invoice_number = f'INV-{latest_order_number:06d}'
     return {
