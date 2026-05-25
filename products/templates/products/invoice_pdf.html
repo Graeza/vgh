@@ -38,12 +38,12 @@
     <tr>
         <td>{{ item.product_title }}</td>
         <td>{{ item.quantity }}</td>
-        <td>R{{ item.line_total }}</td>
+        <td>Points{{ item.line_total }}</td>
     </tr>
     {% endfor %}
 </table>
 
-<p class="total">Total: R{{ order.total }}</p>
+<p class="total">Total Points: {{ order.total }}</p>
 <div class="paid-stamp">PAID</div>
 <div class="footer">Von Gold Herb • Thank you for your purchase!</div>
 </body>
