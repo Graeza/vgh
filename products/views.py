@@ -20,6 +20,9 @@ from .utils import paginateProducts, searchProducts
 
 def _build_invoice_pdf_response(order, filename):
     static_path = settings.STATIC_ROOT
+    if not static_path:
+        static_dirs = getattr(settings, 'STATICFILES_DIRS', [])
+        static_path = static_dirs[0] if static_dirs else os.path.join(settings.BASE_DIR, 'products', 'static')
 
     def link_callback(uri, rel):
         if uri.startswith(settings.STATIC_URL):
