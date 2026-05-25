@@ -2,10 +2,13 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from .forms import AccountDetailsForm
 from .models import PointLedger, Profile
 
@@ -178,23 +181,86 @@ def points_purchase_success(request):
         messages.error(request, 'Payment is not completed yet.')
         return redirect('account')
 
-    profile, _ = Profile.objects.get_or_create(user=request.user)
-    points = int(session.metadata.get('points', '0'))
-    session_note = f'Stripe session: {session_id}'
-    already_logged = profile.point_entries.filter(note=session_note, event='purchased').exists()
-
-    if points > 0 and not already_logged:
-        profile.points_balance += points
-        profile.save(update_fields=['points_balance'])
-        PointLedger.objects.create(
-            user=profile,
-            points=points,
-            event='purchased',
-            note=session_note,
-        )
-        messages.success(request, f'Payment successful. {points} points were added to your balance.')
+    points_added = _credit_points_for_session(session)
+    if request.user.is_authenticated:
+        if points_added > 0:
+            messages.success(request, f'Payment successful. {points_added} points were added to your balance.')
+        else:
+            messages.info(request, 'Payment was already processed for this session.')
 
     return redirect('account')
+
+
+def _credit_points_for_session(session):
+    points = int((session.metadata or {}).get('points', '0'))
+    user_id = (session.metadata or {}).get('user_id')
+    session_note = f'Stripe session: {session.id}'
+    if points < 1 or not user_id:
+        return 0
+
+    try:
+        user = User.objects.get(id=int(user_id))
+    except (User.DoesNotExist, TypeError, ValueError):
+        return 0
+
+    profile, _ = Profile.objects.get_or_create(
+        user=user,
+        defaults={
+            'username': user.username,
+            'email': user.email,
+            'full_name': user.get_full_name(),
+        },
+    )
+
+    already_logged = profile.point_entries.filter(note=session_note, event='purchased').exists()
+    if already_logged:
+        return 0
+
+    profile.points_balance += points
+    profile.save(update_fields=['points_balance'])
+    PointLedger.objects.create(
+        user=profile,
+        points=points,
+        event='purchased',
+        note=session_note,
+    )
+    return points
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    if not settings.STRIPE_SECRET_KEY or not settings.STRIPE_WEBHOOK_SECRET:
+        return HttpResponse(status=400)
+
+    try:
+        import stripe
+    except ImportError:
+        return HttpResponse(status=500)
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
+    except ValueError:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+
+    if event.get('type') == 'checkout.session.completed':
+        session = event['data']['object']
+        if session.get('payment_status') == 'paid':
+            class SessionObject:
+                id = session.get('id')
+                metadata = session.get('metadata') or {}
+
+            _credit_points_for_session(SessionObject())
+
+    return HttpResponse(status=200)
 
 
 @login_required
