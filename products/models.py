@@ -16,6 +16,7 @@ class Product(models.Model):
         ('tincture', 'Tincture'),
         ('topical', 'Topical'),
         ('accessory', 'Accessory'),
+        ('clothing', 'Clothing'),
     )
         
     owner = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.CASCADE)
