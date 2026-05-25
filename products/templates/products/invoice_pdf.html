@@ -25,7 +25,7 @@
             <p><span style="font-weight:bold;">Email:</span> {{ order.user.email }}</p>
         </td>
         <td style="text-align:right; border:none; vertical-align:top; line-height:1.05;">
-            <h1 style="margin:0; font-size:12px; line-height:1.05;">GraeSoundz</h1>
+            <h1 style="margin:0; font-size:12px; line-height:1.05;">Von Gold Herb</h1>
             <h1 style="margin:4px 0 1px 0; font-size:12px; line-height:1.05;">Invoice #: {{ order.invoice_number }}</h1>
             <p><strong>Date:</strong> {{ order.created|date:"d M Y" }}</p>
         </td>
@@ -45,6 +45,6 @@
 
 <p class="total">Total: R{{ order.total }}</p>
 <div class="paid-stamp">PAID</div>
-<div class="footer">GraeSoundz • Thank you for your purchase!</div>
+<div class="footer">Von Gold Herb • Thank you for your purchase!</div>
 </body>
 </html>
