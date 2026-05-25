@@ -101,6 +101,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='orders')
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    invoice_number = models.CharField(max_length=32, blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     placed_at = models.DateTimeField(auto_now_add=True)
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)

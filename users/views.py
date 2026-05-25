@@ -101,7 +101,7 @@ def account(request):
                 return redirect('account')
 
     addresses = profile.addresses.all()
-    orders = profile.orders.select_related('product', 'shipping_address')
+    orders = profile.orders.filter(status='paid').select_related('product', 'shipping_address')
     point_entries = profile.point_entries.select_related('order')
     point_balance = profile.points_balance
 
