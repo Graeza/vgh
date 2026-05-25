@@ -6,14 +6,17 @@
 <div class="main-container">
   <div class="card">
     <img class="product__thumbnail" src="{{ product.imageURL }}" alt="{{ product.title }} thumbnail"/>
-    <h1>{{ product.title }}</h1>
-    <p class="text-muted">{{ product.get_category_display }}</p>
     <p><strong>Price:</strong> {{ product.price|default:"0"|floatformat:0 }} pts</p>
-    <p><strong>SKU:</strong> {{ product.sku|default:"N/A" }}</p>
     <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
-    <p><strong>THC:</strong> {{ product.thc_min|default:"0" }}% - {{ product.thc_max|default:"0" }}%</p>
-    <p><strong>CBD:</strong> {{ product.cbd_min|default:"0" }}% - {{ product.cbd_max|default:"0" }}%</p>
-    <p><strong>Lab tested:</strong> {% if product.is_lab_tested %}Yes{% else %}No{% endif %}</p>
+    {% if product.thc_min or product.thc_max %}
+      <p><strong>THC:</strong> {{ product.thc_min|default:"0" }}% - {{ product.thc_max|default:"0" }}%</p>
+    {% endif %}
+    {% if product.cbd_min or product.cbd_max %}
+      <p><strong>CBD:</strong> {{ product.cbd_min|default:"0" }}% - {{ product.cbd_max|default:"0" }}%</p>
+    {% endif %}
+    {% if product.is_lab_tested %}
+      <p><strong>Lab tested:</strong> Yes</p>
+    {% endif %}
     <form action="{% url 'add-to-cart' product.id %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.path }}">
