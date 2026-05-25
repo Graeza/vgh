@@ -1,0 +1,27 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<div class="checkout-container">
+    <div class="card success-card">
+        <h1>Payment Successful 🎉</h1>
+
+        <p class="success-message">
+            Thank you, {{ order.user.username }}!
+            Your order <strong>{{ order.invoice_number }}</strong> has been paid.
+        </p>
+
+        <p class="success-total">
+            <strong>Total:</strong> R{{ order.total }}
+        </p>
+
+        <a href="{% url 'products-list' %}" class="tag tag--pill tag--main success-btn">
+            Continue Shopping
+        </a>
+        <a href="{% url 'invoice_pdf' %}" class="tag tag--pill tag--main">
+            Download Invoice (PDF)
+        </a>
+
+    </div>
+</div>
+
+{% endblock content %}
