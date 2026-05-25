@@ -25,9 +25,10 @@
         <ul>
           {% for order in orders %}
             <li>
-              <strong>{{ order.product.name }}</strong>
+              <strong>{{ order.product.title }}</strong>
               &times; {{ order.quantity }} — ${{ order.unit_price }} each
               ({{ order.status|title }}, {{ order.placed_at|date:"M d, Y" }})
+              {% if order.invoice_number %} — Invoice {{ order.invoice_number }}{% endif %}
             </li>
           {% endfor %}
         </ul>

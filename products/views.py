@@ -10,7 +10,7 @@ from django.db import transaction
 
 from .models import InvoiceSequence, Product
 from .forms import CheckoutShippingDetailsForm, ProductForm
-from users.models import PointLedger
+from users.models import Order, PointLedger
 from .policy_content import POLICY_PAGES
 from .utils import paginateProducts, searchProducts
 
@@ -104,6 +104,28 @@ def _build_invoice_snapshot(request, cart_context, profile):
             'email': profile.email or profile.user.email,
         },
     }
+
+
+def _create_paid_orders(profile, cart_context, invoice_number):
+    default_address = profile.addresses.filter(is_default=True).first() or profile.addresses.first()
+    if not default_address:
+        return []
+
+    created_orders = []
+    for item in cart_context['cart_items']:
+        product = item['product']
+        created_orders.append(
+            Order.objects.create(
+                user=profile,
+                product=product,
+                shipping_address=default_address,
+                quantity=item['quantity'],
+                unit_price=product.price or Decimal('0'),
+                invoice_number=invoice_number,
+                status='paid',
+            )
+        )
+    return created_orders
 
 
 # Create your views here.
@@ -323,6 +345,7 @@ def checkout(request):
             note='Redeemed points at checkout',
         )
         invoice_snapshot = _build_invoice_snapshot(request, cart_context, profile)
+        _create_paid_orders(profile, cart_context, invoice_snapshot['invoice_number'])
         request.session['latest_invoice'] = invoice_snapshot
         _save_cart_data(request, {})
         messages.success(request, f'Checkout complete. {total} points redeemed.')
